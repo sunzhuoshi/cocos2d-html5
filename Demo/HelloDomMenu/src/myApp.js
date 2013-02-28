@@ -24,6 +24,11 @@
  THE SOFTWARE.
  ****************************************************************************/
 
+var g_ressources = [
+    {src:"res/HelloWorld.png"},
+    {src:"res/CloseNormal.png"},
+    {src:"res/CloseSelected.png"}
+];
 
 var Helloworld = cc.Layer.extend({
     isMouseDown:false,
@@ -80,8 +85,9 @@ var Helloworld = cc.Layer.extend({
         var closeItem = cc.MenuItemImage.create(
             "res/CloseNormal.png",
             "res/CloseSelected.png",
-            this,
-            this.menuCloseCallback);
+            this.menuCloseCallback,
+            this
+        );
         var text = cc.MenuItemFont.create("Hello Dom", function () {
         }, this);
         text.setColor({r:255, g:0, b:0});

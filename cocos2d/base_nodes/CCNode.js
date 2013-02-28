@@ -147,11 +147,11 @@ cc.Node = cc.Class.extend(/** @lends cc.Node# */{
     // lazy alloc,
     _camera:null,
     _grid:null,
-    _isVisible:true,
+    _visible:true,
     _anchorPoint:cc.p(0, 0),
     _anchorPointInPoints:cc.p(0, 0),
     _contentSize:cc.SizeZero(),
-    _isRunning:false,
+    _running:false,
     _parent:null,
     // "whole screen" objects. like Scenes and Layers, should set _ignoreAnchorPointForPosition to true
     _ignoreAnchorPointForPosition:false,
@@ -159,10 +159,10 @@ cc.Node = cc.Class.extend(/** @lends cc.Node# */{
     // userData is always inited as nil
     _userData:null,
     _userObject:null,
-    _isTransformDirty:true,
-    _isInverseDirty:true,
-    _isCacheDirty:true,
-    _isTransformGLDirty:null,
+    _transformDirty:true,
+    _inverseDirty:true,
+    _cacheDirty:true,
+    _transformGLDirty:null,
     _transform:null,
     _inverse:null,
     //since 2.0 api
@@ -173,16 +173,18 @@ cc.Node = cc.Class.extend(/** @lends cc.Node# */{
     _actionManager:null,
     _scheduler:null,
 
+    _initializedNode:false,
+
     /**
      * Constructor
      */
     ctor:function () {
-        //this._initNode();
+        this._initNode();
     },
 
-    _initNode:function(){
+    _initNode:function () {
         if (cc.NODE_TRANSFORM_USING_AFFINE_MATRIX) {
-            this._isTransformGLDirty = true;
+            this._transformGLDirty = true;
         }
         this._anchorPoint = cc.p(0, 0);
         this._anchorPointInPoints = cc.p(0, 0);
@@ -198,11 +200,14 @@ cc.Node = cc.Class.extend(/** @lends cc.Node# */{
         this.getScheduler = function () {
             return this._scheduler;
         };
+        this._initializedNode = true;
     },
 
-    init:function(){
-        this._initNode();
-    } ,
+    init:function () {
+        if (this._initializedNode === false)
+            this._initNode();
+        return true;
+    },
 
     /**
      * @param {Array} array
@@ -284,14 +289,14 @@ cc.Node = cc.Class.extend(/** @lends cc.Node# */{
      */
     setNodeDirty:function () {
         this._setNodeDirtyForCache();
-        this._isTransformDirty = this._isInverseDirty = true;
+        this._transformDirty = this._inverseDirty = true;
         if (cc.NODE_TRANSFORM_USING_AFFINE_MATRIX) {
-            this._isTransformGLDirty = true;
+            this._transformGLDirty = true;
         }
     },
 
     _setNodeDirtyForCache:function () {
-        this._isCacheDirty = true;
+        this._cacheDirty = true;
         if (this._parent) {
             this._parent._setNodeDirtyForCache();
         }
@@ -397,13 +402,9 @@ cc.Node = cc.Class.extend(/** @lends cc.Node# */{
     setRotation:function (newRotation) {
         if (this._rotation == newRotation)
             return;
-        //save dirty region when before change
-        //this._addDirtyRegionToDirector(this.getBoundingBoxToWorld());
-
         this._rotation = newRotation;
         this._rotationRadians = this._rotation * (Math.PI / 180);
-        //save dirty region when after changed
-        //this._addDirtyRegionToDirector(this.getBoundingBoxToWorld());
+
         this.setNodeDirty();
     },
 
@@ -487,25 +488,24 @@ cc.Node = cc.Class.extend(/** @lends cc.Node# */{
     setPosition:function (newPosOrxValue, yValue) {
         //save dirty region when before change
         //this._addDirtyRegionToDirector(this.getBoundingBoxToWorld());
-        if (arguments.length==2) {
+        if (arguments.length == 2) {
             this._position = new cc.Point(newPosOrxValue, yValue);
             //this.setPosition = this._setPositionByValue;
-        } else if (arguments.length==1) {
+        } else if (arguments.length == 1) {
             this._position = new cc.Point(newPosOrxValue.x, newPosOrxValue.y);
             //this.setPosition = this._setPositionByValue;
         }
-
         //save dirty region when after changed
         //this._addDirtyRegionToDirector(this.getBoundingBoxToWorld());
         this.setNodeDirty();
     },
 
     _setPositionByValue:function (newPosOrxValue, yValue) {
-        if (arguments.length==2) {
+        if (arguments.length == 2) {
             this._position.x = newPosOrxValue;
             this._position.y = yValue;
             //this._position = cc.p(newPosOrxValue,yValue);
-        } else if (arguments.length==1) {
+        } else if (arguments.length == 1) {
             this._position.x = newPosOrxValue.x;
             this._position.y = newPosOrxValue.y;
         }
@@ -611,7 +611,7 @@ cc.Node = cc.Class.extend(/** @lends cc.Node# */{
      * @return {Boolean}
      */
     isVisible:function () {
-        return this._isVisible;
+        return this._visible;
     },
 
     /**
@@ -619,7 +619,7 @@ cc.Node = cc.Class.extend(/** @lends cc.Node# */{
      * @param {Boolean} Var
      */
     setVisible:function (Var) {
-        this._isVisible = Var;
+        this._visible = Var;
         //this._addDirtyRegionToDirector(this.getBoundingBoxToWorld());
         this.setNodeDirty();
     },
@@ -710,7 +710,7 @@ cc.Node = cc.Class.extend(/** @lends cc.Node# */{
      * @return {Boolean}
      */
     isRunning:function () {
-        return this._isRunning;
+        return this._running;
     },
 
     /** parent getter
@@ -927,7 +927,7 @@ cc.Node = cc.Class.extend(/** @lends cc.Node# */{
 
         for (var i = 0; i < this._children.length; i++) {
             var child = this._children[i];
-            if (child && child._isVisible) {
+            if (child && child._visible) {
                 var childRect = child.getBoundingBoxToWorld();
                 if (childRect) {
                     rect = cc.Rect.CCRectUnion(rect, childRect);
@@ -990,13 +990,16 @@ cc.Node = cc.Class.extend(/** @lends cc.Node# */{
      * @param {Number} tag
      */
     addChild:function (child, zOrder, tag) {
-        if ( child === this ) {
-            console.warn( 'cc.Node.addChild: An Node can\'t be added as a child of itself.' );
+        if (child === this) {
+            console.warn('cc.Node.addChild: An Node can\'t be added as a child of itself.');
             return;
         }
 
         cc.Assert(child != null, "Argument must be non-nil");
-        cc.Assert(child._parent == null, "child already added. It can't be added again");
+        if(child._parent !== null){
+            cc.Assert(child._parent === null, "child already added. It can't be added again");
+            return;
+        }
         var tempzOrder = (zOrder != null) ? zOrder : child.getZOrder();
         var tmptag = (tag != null) ? tag : child.getTag();
         child.setTag(tmptag);
@@ -1008,7 +1011,7 @@ cc.Node = cc.Class.extend(/** @lends cc.Node# */{
         this._insertChild(child, tempzOrder);
 
         child.setParent(this);
-        if (this._isRunning) {
+        if (this._running) {
             child.onEnter();
             child.onEnterTransitionDidFinish();
         }
@@ -1023,8 +1026,9 @@ cc.Node = cc.Class.extend(/** @lends cc.Node# */{
      */
     removeFromParent:function (cleanup) {
         if (this._parent) {
-            if( arguments.length === 0)
+            if (cleanup == null){
                 cleanup = true;
+            }
             this._parent.removeChild(this, cleanup);
         }
     },
@@ -1049,15 +1053,13 @@ cc.Node = cc.Class.extend(/** @lends cc.Node# */{
             return;
         }
 
-        // If only one argument, then force cleanup
-        if( arguments.length == 1)
+        if (cleanup == null){
             cleanup = true;
-
+        }
         if (this._children.indexOf(child) > -1) {
             this._detachChild(child, cleanup);
         }
 
-        //this._addDirtyRegionToDirector(this.getBoundingBoxToWorld());
         this.setNodeDirty();
     },
 
@@ -1073,15 +1075,14 @@ cc.Node = cc.Class.extend(/** @lends cc.Node# */{
         var child = this.getChildByTag(tag);
         if (child == null) {
             cc.log("cocos2d: removeChildByTag: child not found!");
-        }
-        else {
+        } else {
             this.removeChild(child, cleanup);
         }
     },
 
     /* XXX deprecated */
     removeAllChildrenWithCleanup:function (cleanup) {
-        cc.log("removeAllChildrenWithCleanup is deprecated. Use removeFromParent instead");
+        cc.log("removeAllChildrenWithCleanup is deprecated. Use removeAllChildren instead");
         this.removeAllChildren(cleanup);
     },
 
@@ -1093,15 +1094,16 @@ cc.Node = cc.Class.extend(/** @lends cc.Node# */{
     removeAllChildren:function (cleanup) {
         // not using detachChild improves speed here
         if (this._children != null) {
-            if(arguments.length === 0)
+            if (cleanup == null){
                 cleanup = true;
+            }
             for (var i = 0; i < this._children.length; i++) {
                 var node = this._children[i];
                 if (node) {
                     // IMPORTANT:
                     //  -1st do onExit
                     //  -2nd cleanup
-                    if (this._isRunning) {
+                    if (this._running) {
                         node.onExitTransitionDidStart();
                         node.onExit();
                     }
@@ -1124,7 +1126,7 @@ cc.Node = cc.Class.extend(/** @lends cc.Node# */{
         // IMPORTANT:
         //  -1st do onExit
         //  -2nd cleanup
-        if (this._isRunning) {
+        if (this._running) {
             child.onExitTransitionDidStart();
             child.onExit();
         }
@@ -1238,7 +1240,7 @@ cc.Node = cc.Class.extend(/** @lends cc.Node# */{
         //visit for canvas
 
         // quick return if not visible
-        if (!this._isVisible)
+        if (!this._visible)
             return;
 
         var context = ctx || cc.renderContext, i;
@@ -1268,7 +1270,7 @@ cc.Node = cc.Class.extend(/** @lends cc.Node# */{
     },
 
     _visitForWebGL:function (ctx) {
-        if (!this._isVisible)
+        if (!this._visible)
             return;
 
         var context = ctx, i;
@@ -1312,11 +1314,9 @@ cc.Node = cc.Class.extend(/** @lends cc.Node# */{
         }
 
         this._orderOfArrival = 0;
-
         if (this._grid && this._grid.isActive()) {
             this._grid.afterDraw(this);
         }
-
         context.restore();
     },
 
@@ -1339,19 +1339,18 @@ cc.Node = cc.Class.extend(/** @lends cc.Node# */{
         // transform for canvas
         var context = ctx || cc.renderContext;
 
-        // transformations
+/*        // transformations
         if (!this._ignoreAnchorPointForPosition) {
-            if (this._parent) {
-                context.translate(0 | (this._position.x - this._parent._anchorPointInPoints.x), -(0 | (this._position.y - this._parent._anchorPointInPoints.y)));
-            } else {
-                context.translate(0 | this._position.x, -(0 | this._position.y));
-            }
+            if (this._parent)
+                context.translate((this._position.x - this._parent._anchorPointInPoints.x), -((this._position.y - this._parent._anchorPointInPoints.y)));
+            else
+                context.translate(this._position.x, -(this._position.y));
         } else {
             if (this._parent) {
-                context.translate(0 | ( this._position.x - this._parent._anchorPointInPoints.x + this._anchorPointInPoints.x),
-                    -(0 | (this._position.y - this._parent._anchorPointInPoints.y + this._anchorPointInPoints.y)));
+                context.translate(( this._position.x - this._parent._anchorPointInPoints.x + this._anchorPointInPoints.x),
+                    -((this._position.y - this._parent._anchorPointInPoints.y + this._anchorPointInPoints.y)));
             } else {
-                context.translate(0 | ( this._position.x + this._anchorPointInPoints.x), -(0 | (this._position.y + this._anchorPointInPoints.y)));
+                context.translate(( this._position.x + this._anchorPointInPoints.x), -((this._position.y + this._anchorPointInPoints.y)));
             }
         }
 
@@ -1366,7 +1365,10 @@ cc.Node = cc.Class.extend(/** @lends cc.Node# */{
                 -Math.tan(cc.DEGREES_TO_RADIANS(this._skewY)),
                 -Math.tan(cc.DEGREES_TO_RADIANS(this._skewX)),
                 1, 0, 0);
-        }
+        }*/
+
+        var t = this.nodeToParentTransform();
+        context.transform(t.a, t.b, t.c, t.d, t.tx, -t.ty);
     },
 
     _transformForWebGL:function (ctx) {
@@ -1406,7 +1408,7 @@ cc.Node = cc.Class.extend(/** @lends cc.Node# */{
      * During onEnter you can't a "sister/brother" node.
      */
     onEnter:function () {
-        this._isRunning = true;//should be running before resumeSchedule
+        this._running = true;//should be running before resumeSchedule
         this._arrayMakeObjectsPerformSelector(this._children, cc.Node.StateCallbackType.onEnter);
         this.resumeSchedulerAndActions();
     },
@@ -1433,7 +1435,7 @@ cc.Node = cc.Class.extend(/** @lends cc.Node# */{
      * During onExit you can't access a sibling node.
      */
     onExit:function () {
-        this._isRunning = false;
+        this._running = false;
         this.pauseSchedulerAndActions();
         this._arrayMakeObjectsPerformSelector(this._children, cc.Node.StateCallbackType.onExit);
     },
@@ -1448,7 +1450,7 @@ cc.Node = cc.Class.extend(/** @lends cc.Node# */{
      */
     runAction:function (action) {
         cc.Assert(action != null, "Argument must be non-nil");
-        this.getActionManager().addAction(action, this, !this._isRunning);
+        this.getActionManager().addAction(action, this, !this._running);
         return action;
     },
 
@@ -1514,7 +1516,7 @@ cc.Node = cc.Class.extend(/** @lends cc.Node# */{
      * @param {Number} priority
      */
     scheduleUpdateWithPriority:function (priority) {
-        this.getScheduler().scheduleUpdateForTarget(this, priority, !this._isRunning);
+        this.getScheduler().scheduleUpdateForTarget(this, priority, !this._running);
     },
 
     /**
@@ -1538,7 +1540,7 @@ cc.Node = cc.Class.extend(/** @lends cc.Node# */{
         repeat = (repeat == null) ? cc.REPEAT_FOREVER : repeat;
         delay = delay || 0;
 
-        this.getScheduler().scheduleCallbackForTarget(this, callback_fn, interval, repeat, delay, !this._isRunning);
+        this.getScheduler().scheduleCallbackForTarget(this, callback_fn, interval, repeat, delay, !this._running);
     },
 
     /**
@@ -1593,14 +1595,14 @@ cc.Node = cc.Class.extend(/** @lends cc.Node# */{
      * @return {cc.AffineTransform}
      */
     nodeToParentTransform:function () {
-        if (this._isTransformDirty) {
+/*        if (this._transformDirty) {
             // Translate values
             var x = this._position.x;
             var y = this._position.y;
 
             if (this._ignoreAnchorPointForPosition) {
-                x += this._anchorPointInPoints.x;
-                y += this._anchorPointInPoints.y;
+                x -= this._anchorPointInPoints.x;
+                y -= this._anchorPointInPoints.y;
             }
 
             // Rotation values
@@ -1620,7 +1622,6 @@ cc.Node = cc.Class.extend(/** @lends cc.Node# */{
                 y += s * -this._anchorPointInPoints.x * this._scaleX + c * -this._anchorPointInPoints.y * this._scaleY;
             }
 
-
             // Build Transform Matrix
             this._transform = cc.AffineTransformMake(c * this._scaleX, s * this._scaleX,
                 -s * this._scaleY, c * this._scaleY, x, y);
@@ -1638,9 +1639,65 @@ cc.Node = cc.Class.extend(/** @lends cc.Node# */{
                 }
             }
 
-            this._isTransformDirty = false;
+            this._transformDirty = false;
         }
 
+        return this._transform;*/
+        if(!this._transform){
+            this._transform = {a:1,b:0,c:0,d:1,tx:0,ty:0};
+        }
+        if(this._transformDirty){
+            var t = this._transform;// quick reference
+            // base position
+            t.tx = this._position.x;
+            t.ty = this._position.y;
+
+            // rotation Cos and Sin
+            var Cos = 1, Sin = 0;
+            if(this._rotation){
+                Cos = Math.cos(this._rotationRadians);
+                Sin = Math.sin(this._rotationRadians);
+            }
+
+            // base abcd
+            t.a = t.d = Cos;
+            t.c = -Sin;
+            t.b = Sin;
+
+            // skew
+            if(this._skewX || this._skewY){
+                // offset the anchorpoint
+                var skx = Math.tan(-this._skewX*Math.PI/180);
+                var sky = Math.tan(-this._skewY*Math.PI/180);
+                var xx = this._anchorPointInPoints.y*skx*this._scaleX;
+                var yy = this._anchorPointInPoints.x*sky*this._scaleY;
+                t.a = Cos + -Sin*sky;
+                t.c = Cos * skx + -Sin;
+                t.b = Sin + Cos*sky;
+                t.d = Sin*skx + Cos;
+                t.tx += Cos*xx + -Sin*yy;
+                t.ty += Sin*xx + Cos*yy;
+            }
+
+            // scale
+            if(this._scaleX !== 1 || this._scaleY !== 1){
+                t.a *= this._scaleX;
+                t.b *= this._scaleX;
+                t.c *= this._scaleY;
+                t.d *= this._scaleY;
+            }
+
+            // adjust anchorPoint
+            t.tx += Cos*-this._anchorPointInPoints.x*this._scaleX + -Sin*this._anchorPointInPoints.y*this._scaleY;
+            t.ty -= Sin*-this._anchorPointInPoints.x*this._scaleX + Cos*this._anchorPointInPoints.y*this._scaleY;
+
+            // if ignore anchorPoint
+            if(this._ignoreAnchorPointForPosition){
+                t.tx += this._anchorPointInPoints.x;
+                t.ty += this._anchorPointInPoints.y;
+            }
+            this._transformDirty = false;
+        }
         return this._transform;
     },
 
@@ -1650,9 +1707,9 @@ cc.Node = cc.Class.extend(/** @lends cc.Node# */{
      * @return {Number}
      */
     parentToNodeTransform:function () {
-        if (this._isInverseDirty) {
+        if (this._inverseDirty) {
             this._inverse = cc.AffineTransformInvert(this.nodeToParentTransform());
-            this._isInverseDirty = false;
+            this._inverseDirty = false;
         }
 
         return this._inverse;
@@ -1744,10 +1801,15 @@ cc.Node = cc.Class.extend(/** @lends cc.Node# */{
         return this.convertToNodeSpaceAR(point);
     },
 
-    /** implement cc.Object's method
+    /** implement cc.Object's method (override me)
      * @param {Number} dt
      */
     update:function (dt) {
+    },
+
+    updateTransform:function(){
+        // Recursively iterate over children
+        this._arrayMakeObjectsPerformSelector(this._children, cc.Node.StateCallbackType.updateTransform);
     },
 
     /**
@@ -1755,8 +1817,10 @@ cc.Node = cc.Class.extend(/** @lends cc.Node# */{
      * and the ugly workaround is to use retain/release. So, these 2 methods were added to be compatible with JSB.
      * This is a hack, and should be removed once JSB fixes the retain/release bug
      */
-     retain:function() {},
-     release:function() {}
+    retain:function () {
+    },
+    release:function () {
+    }
 });
 
 /**

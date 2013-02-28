@@ -66,14 +66,71 @@ cc.SAX_STRING = 5;
  */
 cc.SAX_ARRAY = 6;
 
+//Compatibility with IE9
+var Uint8Array = Uint8Array || Array;
+
+if (/msie/i.test(navigator.userAgent) && !/opera/i.test(navigator.userAgent)) {
+    var IEBinaryToArray_ByteStr_Script =
+        "<!-- IEBinaryToArray_ByteStr -->\r\n" +
+            //"<script type='text/vbscript'>\r\n" +
+            "Function IEBinaryToArray_ByteStr(Binary)\r\n" +
+            "   IEBinaryToArray_ByteStr = CStr(Binary)\r\n" +
+            "End Function\r\n" +
+            "Function IEBinaryToArray_ByteStr_Last(Binary)\r\n" +
+            "   Dim lastIndex\r\n" +
+            "   lastIndex = LenB(Binary)\r\n" +
+            "   if lastIndex mod 2 Then\r\n" +
+            "       IEBinaryToArray_ByteStr_Last = Chr( AscB( MidB( Binary, lastIndex, 1 ) ) )\r\n" +
+            "   Else\r\n" +
+            "       IEBinaryToArray_ByteStr_Last = " + '""' + "\r\n" +
+            "   End If\r\n" +
+            "End Function\r\n";// +
+    //"</script>\r\n";
+
+    // inject VBScript
+    //document.write(IEBinaryToArray_ByteStr_Script);
+    var myVBScript = document.createElement('script');
+    myVBScript.type = "text/vbscript";
+    myVBScript.textContent = IEBinaryToArray_ByteStr_Script;
+    document.body.appendChild(myVBScript);
+
+    // helper to convert from responseBody to a "responseText" like thing
+    cc._convertResponseBodyToText = function (binary) {
+        var byteMapping = {};
+        for (var i = 0; i < 256; i++) {
+            for (var j = 0; j < 256; j++) {
+                byteMapping[ String.fromCharCode(i + j * 256) ] =
+                    String.fromCharCode(i) + String.fromCharCode(j);
+            }
+        }
+        var rawBytes = IEBinaryToArray_ByteStr(binary);
+        var lastChr = IEBinaryToArray_ByteStr_Last(binary);
+        return rawBytes.replace(/[\s\S]/g,
+            function (match) {
+                return byteMapping[match];
+            }) + lastChr;
+    };
+}
+
 /**
  * @namespace
  */
 cc.FileUtils = cc.Class.extend({
     _fileDataCache:null,
 
-    ctor:function(){
-       this._fileDataCache = {};
+    _directory:null,
+    _filenameLookupDict:null,
+    _searchResolutionsOrderArray:null,
+    _searchPathArray:null,
+
+    ctor:function () {
+        this._fileDataCache = {};
+
+        this._searchPathArray = [];
+        this._searchPathArray.push("");
+
+        this._searchResolutionsOrderArray = [];
+        this._searchResolutionsOrderArray.push("");
     },
     /**
      * Get resource file data
@@ -84,51 +141,88 @@ cc.FileUtils = cc.Class.extend({
      * @warning If you get the file data succeed,you must delete it after used.
      */
     getFileData:function (fileName, mode, size) {
-        if(this._fileDataCache.hasOwnProperty(fileName))
+        if (this._fileDataCache.hasOwnProperty(fileName))
             return this._fileDataCache[fileName];
 
         return this._loadBinaryFileData(fileName);
     },
 
-    preloadBinaryFileData:function(fileUrl){
-        fileUrl = this.fullPathFromRelativePath(fileUrl);
+    _getXMLHttpRequest:function () {
+        if (window.XMLHttpRequest) {
+            return new window.XMLHttpRequest();
+        } else {
+            return new ActiveXObject("MSXML2.XMLHTTP");
+        }
+    },
 
+    preloadBinaryFileData:function (fileUrl) {
+        fileUrl = this.fullPathFromRelativePath(fileUrl);
         var selfPointer = this;
-        var xhr = new XMLHttpRequest();
+
+        var xhr = this._getXMLHttpRequest();
         xhr.open("GET", fileUrl, true);
-        if(xhr.overrideMimeType)
-            xhr.overrideMimeType("text\/plain; charset=x-user-defined");
-        xhr.onload = function(e) {
-            var arrayStr = xhr.responseText;
-            if(arrayStr){
-                cc.Loader.getInstance().onResLoaded();
-                selfPointer._fileDataCache[fileUrl] = selfPointer._stringConvertToArray(arrayStr);
-            }
-        };
+        if (/msie/i.test(navigator.userAgent) && !/opera/i.test(navigator.userAgent)) {
+            // IE-specific logic here
+            xhr.setRequestHeader("Accept-Charset", "x-user-defined");
+            xhr.onreadystatechange = function (event) {
+                if (xhr.readyState == 4) {
+                    if (xhr.status == 200) {
+                        var fileContents = cc._convertResponseBodyToText(xhr.responseBody);
+                        if (fileContents)
+                            selfPointer._fileDataCache[fileUrl] = selfPointer._stringConvertToArray(fileContents);
+                    }
+                    cc.Loader.getInstance().onResLoaded();
+                }
+            };
+        } else {
+            if (xhr.overrideMimeType)
+                xhr.overrideMimeType("text\/plain; charset=x-user-defined");
+            xhr.onload = function (e) {
+                var arrayStr = xhr.responseText;
+                if (arrayStr) {
+                    cc.Loader.getInstance().onResLoaded();
+                    selfPointer._fileDataCache[fileUrl] = selfPointer._stringConvertToArray(arrayStr);
+                }
+            };
+        }
         xhr.send(null);
     },
 
-    _loadBinaryFileData:function(fileUrl){
-        var req = new XMLHttpRequest();
+    _loadBinaryFileData:function (fileUrl) {
+        var req = this._getXMLHttpRequest();
         req.open('GET', fileUrl, false);
-        if(req.overrideMimeType)
-            req.overrideMimeType('text\/plain; charset=x-user-defined');
-        req.send(null);
-        if (req.status != 200)
-            return '';
+        var arrayInfo = null;
+        if (/msie/i.test(navigator.userAgent) && !/opera/i.test(navigator.userAgent)) {
+            req.setRequestHeader("Accept-Charset", "x-user-defined");
+            req.send(null);
+            if (req.status != 200)
+                return null;
 
-        var arrayInfo = this._stringConvertToArray(req.responseText);
-        this._fileDataCache[fileUrl] = arrayInfo;
+            var fileContents = cc._convertResponseBodyToText(req.responseBody);
+            if (fileContents) {
+                arrayInfo = this._stringConvertToArray(req.responseText);
+                this._fileDataCache[fileUrl] = arrayInfo;
+            }
+        } else {
+            if (req.overrideMimeType)
+                req.overrideMimeType('text\/plain; charset=x-user-defined');
+            req.send(null);
+            if (req.status != 200)
+                return null;
+
+            arrayInfo = this._stringConvertToArray(req.responseText);
+            this._fileDataCache[fileUrl] = arrayInfo;
+        }
         return arrayInfo;
     },
 
-    _stringConvertToArray:function(strData){
-        if(!strData)
+    _stringConvertToArray:function (strData) {
+        if (!strData)
             return null;
 
         var arrData = new Uint8Array(strData.length);
-        for(var i = 0; i< strData.length; i++){
-            arrData[i] = strData.charCodeAt(i) ; //& 0xff;
+        for (var i = 0; i < strData.length; i++) {
+            arrData[i] = strData.charCodeAt(i) & 0xff;
         }
         return arrData;
     },
@@ -154,9 +248,9 @@ cc.FileUtils = cc.Class.extend({
     removeSuffixFromFile:function (path) {
     },
 
-//////////////////////////////////////////////////////////////////////////
-// Notification support when getFileData from invalid file path.
-//////////////////////////////////////////////////////////////////////////
+    //////////////////////////////////////////////////////////////////////////
+    // Notification support when getFileData from invalid file path.
+    //////////////////////////////////////////////////////////////////////////
     /**
      * Notification support when getFileData from invalid file path.
      * @function
@@ -178,6 +272,98 @@ cc.FileUtils = cc.Class.extend({
     },
 
     /**
+     * <p>
+     *      Returns the fullpath for a given filename.                                                                                                                             </br>
+     *      First it will try to get a new filename from the "filenameLookup" dictionary. If a new filename can't be found on the dictionary, it will use the original filename.   </br>
+     *      Then it will try obtain the full path of the filename using the CCFileUtils search rules:  resources directory                                                         </br>
+     *                                                                                                                                                                             </br>
+     *      If the filename can't be found on resource directory(e.g. Resources/iphone-hd), it will go back to the root of asset folder(e.g. Resources/) to find the filename.     </br>
+     *                                                                                                                                                                             </br>
+     *      If the filename can't be found on the file system, it will return the filename directly.                                                                               </br>
+     *                                                                                                                                                                             </br>
+     *      This method was added to simplify multiplatform support. Whether you are using cocos2d-js or any cross-compilation toolchain like StellaSDK or Apportable,             </br>
+     *      you might need to load differerent resources for a given file in the different platforms.                                                                              </br>
+     *                                                                                                                                                                             </br>
+     *      Examples:                                                                                                                                                              </br>
+     *      * In iOS: "image.png" -> "image.pvr" -> "/full/path/res_dir/image.pvr"                                                                                                 </br>
+     *      * In Android: "image.png" -> "image.png" -> "/full/path/res_dir/image.png"                                                                                             </br>
+     * </p>
+     * @param {String} filename
+     * @return {String} fullpath for a given filename.
+     */
+    fullPathForFilename:function (filename) {
+        var found = false;
+
+        var newFileName = this._getNewFilename(filename);
+        var fullPath;
+
+        if (newFileName && newFileName.length > 1 && (newFileName.indexOf(":") == 1))
+            return newFileName;
+
+        for(var i = 0; i< this._searchPathArray.length; i++){
+            var searchPath = this._searchPathArray[i];
+            for(var j = 0; j < this._searchResolutionsOrderArray.length; j++){
+                var resourceDirectory = this._searchResolutionsOrderArray[j];
+                fullPath = this._getPathForFilename(newFileName, resourceDirectory,searchPath);
+                if(fullPath){
+                    found = true;
+                    break;
+                }
+            }
+            if(found)
+                break;
+        }
+
+        return found ? fullPath : newFileName;
+    },
+
+    /**
+     * <p>
+     *     Loads the filenameLookup dictionary from the contents of a filename.                                        <br/>
+     *                                                                                                                 <br/>
+     *     @note The plist file name should follow the format below:                                                   <br/>
+     *     <?xml version="1.0" encoding="UTF-8"?>                                                                      <br/>
+     *         <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">  <br/>
+     *             <plist version="1.0">                                                                               <br/>
+     *                 <dict>                                                                                          <br/>
+     *                     <key>filenames</key>                                                                        <br/>
+     *                     <dict>                                                                                      <br/>
+     *                         <key>sounds/click.wav</key>                                                             <br/>
+     *                         <string>sounds/click.caf</string>                                                       <br/>
+     *                         <key>sounds/endgame.wav</key>                                                           <br/>
+     *                         <string>sounds/endgame.caf</string>                                                     <br/>
+     *                         <key>sounds/gem-0.wav</key>                                                             <br/>
+     *                         <string>sounds/gem-0.caf</string>                                                       <br/>
+     *                     </dict>                                                                                     <br/>
+     *                     <key>metadata</key>                                                                         <br/>
+     *                     <dict>                                                                                      <br/>
+     *                         <key>version</key>                                                                      <br/>
+     *                         <integer>1</integer>                                                                    <br/>
+     *                     </dict>                                                                                     <br/>
+     *                 </dict>                                                                                         <br/>
+     *              </plist>                                                                                           <br/>
+     * </p>
+     * @param {String} filename  The plist file name.
+     */
+    loadFilenameLookup:function (filename) {
+        var fullPath = this.fullPathForFilename(filename);
+        if (fullPath.length > 0) {
+            var dict = cc.SAXParser.getInstance().parse(fullPath);
+            var metadataDict = dict["metadata"];
+            var version = parseInt(metadataDict["version"]);
+            if (version != 1) {
+                cc.log("cocos2d: ERROR: Invalid filenameLookup dictionary version: " + version + ". Filename: " + filename);
+                return;
+            }
+            this.setFilenameLookupDictionary(dict["filenames"]);
+        }
+    },
+
+    setFilenameLookupDictionary:function (filenameLookupDict) {
+        this._filenameLookupDict = filenameLookupDict;
+    },
+
+    /**
      * Generate the relative path of the file.
      * @function
      * @param {String} filename
@@ -196,6 +382,62 @@ cc.FileUtils = cc.Class.extend({
             return tmpPath;
         }
     },
+
+    /**
+     * <p>
+     *     Array that contains the search order of the resources based for the device.
+     *     By default it will try to load resources in the following order until one is found:
+     *     - On iPad HD: iPad HD resources, iPad resources, resources not associated with any device
+     *     - On iPad: iPad resources, resources not associated with any device
+     *     - On iPhone 5 HD: iPhone 5 HD resources, iPhone HD resouces, iPhone 5 resources, iPhone resources, resources not associated with any device
+     *     - On iPhone HD: iPhone HD resources, iPhone resouces, resources not associated with any device
+     *     - On iPhone: iPhone resources, resources not associated with any device
+     *
+     *     - On Mac HD: Mac HD resources, Mac resources, resources not associated with any device
+     *     - On Mac: Mac resources, resources not associated with any device
+     *
+     *     If the property "enableiPhoneResourcesOniPad" is enabled, it will also search for iPhone resources if you are in an iPad.
+     * </p>
+     * @param {Array} searchResolutionsOrder
+     */
+    setSearchResolutionsOrder:function (searchResolutionsOrder) {
+        this._searchResolutionsOrderArray = searchResolutionsOrder;
+    },
+
+    /**
+     * return Array that contains the search order of the resources based for the device.
+     * @return {Array}
+     */
+    getSearchResolutionsOrder:function () {
+        return this._searchResolutionsOrderArray;
+    },
+
+    /**
+     * <p>
+     *     Array of search paths.                                                                                                  <br/>
+     *     You can use this array to modify the search path of the resources.                                                      <br/>
+     *     If you want to use "themes" or search resources in the "cache", you can do it easily by adding new entries in this array.  <br/>
+     *                                                                                                                                <br/>
+     *     By default it is an array with only the "" (empty string) element.                                                         <br/>
+     * </p>
+     * @param {Array} searchPaths
+     */
+    setSearchPath:function (searchPaths) {
+        this._searchPathArray = searchPaths;
+    },
+
+    /**
+     * return Array of search paths.
+     * @return {Array}
+     */
+    getSearchPath:function () {
+        return this._searchPathArray;
+    },
+
+    getResourceDirectory:function () {
+        return this._directory;
+    },
+
 
     /**
      * Set the ResourcePath,we will find resource in this path
@@ -239,6 +481,7 @@ cc.FileUtils = cc.Class.extend({
      * @deprecated
      */
     getWriteablePath:function () {
+        return "";
     },
 
     /**
@@ -257,13 +500,67 @@ cc.FileUtils = cc.Class.extend({
      */
     isPopupNotify:function () {
         return cc.popupNotify;
+    },
+
+    _resourceRootPath:"",
+    getResourceRootPath:function(){
+        return this._resourceRootPath;
+    },
+
+    setResourceRootPath:function(resourceRootPath){
+        this._resourceRootPath = resourceRootPath;
+    },
+
+    _getNewFilename:function (filename) {
+        var newFileName = null;
+        var fileNameFound = this._filenameLookupDict ? this._filenameLookupDict[filename] : null;
+        if (!fileNameFound || fileNameFound.length === 0)
+            newFileName = filename;
+        else {
+            newFileName = fileNameFound;
+            cc.log("FOUND NEW FILE NAME: %s", newFileName);
+        }
+        return newFileName;
+    },
+
+    _getPathForFilename:function (filename, resourceDirectory, searchPath) {
+        var ret ;
+        var resourceRootPath = this.getResourceRootPath(); //cc.Application.getInstance().getResourceRootPath();
+
+        if(filename && (filename.length > 0) && (filename.indexOf('/') === 0 || filename.indexOf("\\") === 0)){
+            ret = "";
+        } else if( resourceRootPath.length > 0){
+            ret = resourceRootPath;
+            if(ret[ret.length -1] != '\\' && ret[ret.length -1] != '/')
+                ret += "/";
+        } else {
+            ret = resourceRootPath;
+        }
+
+        var file = filename;
+        var file_path = "";
+        var pos = filename.lastIndexOf('/');
+        if(pos != -1){
+            file_path = filename.substr(0,pos+1);
+            file = filename.substr(pos+1);
+        }
+        var path = searchPath;
+        if(path.length > 0 && path.lastIndexOf('/') !== path.length -1)
+            path += '/';
+        path += file_path;
+        path += resourceDirectory;
+        if(path.length > 0 && path.lastIndexOf("/") !== path.length -1)
+            path += '/';
+        path += file;
+        ret += path;
+        return ret;
     }
 });
 
 cc.s_SharedFileUtils = null;
-cc.FileUtils.getInstance =  function(){
-    if(cc.s_SharedFileUtils == null){
-        cc.s_SharedFileUtils =  new cc.FileUtils();
+cc.FileUtils.getInstance = function () {
+    if (cc.s_SharedFileUtils == null) {
+        cc.s_SharedFileUtils = new cc.FileUtils();
     }
     return cc.s_SharedFileUtils;
 };

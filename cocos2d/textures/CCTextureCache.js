@@ -70,12 +70,14 @@ cc.computeImageFormatType = function (filename) {
 cc.TextureCache = cc.Class.extend(/** @lends cc.TextureCache# */{
     textures:{},
     _textureColorsCache:{},
+    _textureKeySeq:1000,
 
     /**
      * Constructor
      */
     ctor:function () {
         cc.Assert(cc.g_sharedTextureCache == null, "Attempted to allocate a second instance of a singleton.");
+        this._textureKeySeq += (0|Math.random() * 1000);
     },
 
     /**
@@ -100,6 +102,8 @@ cc.TextureCache = cc.Class.extend(/** @lends cc.TextureCache# */{
         }
         else {
             texture = new Image();
+            texture.crossOrigin = "Anonymous";
+
             var that = this;
             texture.addEventListener("load", function () {
                 that._addImageAsyncCallBack(target, selector);
@@ -152,7 +156,7 @@ cc.TextureCache = cc.Class.extend(/** @lends cc.TextureCache# */{
     addImage:function (path) {
         cc.Assert(path != null, "TextureCache: path MUST not be null");
 
-        path = cc.FileUtils.getInstance().fullPathFromRelativePath(path);
+        path = cc.FileUtils.getInstance().fullPathForFilename(path);
 
         var texture = this.textures[path.toString()];
         if (texture) {
@@ -160,6 +164,8 @@ cc.TextureCache = cc.Class.extend(/** @lends cc.TextureCache# */{
         }
         else {
             texture = new Image();
+            texture.crossOrigin = "Anonymous";
+
             var that = this;
             texture.addEventListener("load", function () {
 
@@ -172,10 +178,11 @@ cc.TextureCache = cc.Class.extend(/** @lends cc.TextureCache# */{
             this.textures[path.toString()] = texture;
         }
 
-        if (cc.renderContextType == cc.CANVAS) {
+        if (cc.renderContextType === cc.CANVAS) {
             return this.textures[path.toString()];
         } else {
             //todo texture for gl
+            return null;
         }
     },
 
@@ -259,6 +266,11 @@ cc.TextureCache = cc.Class.extend(/** @lends cc.TextureCache# */{
         return null;
     },
 
+    _generalTextureKey:function(){
+        this._textureKeySeq++;
+        return "_textureKey_" + this._textureKeySeq;
+    },
+
     /**
      * @param {Image} texture
      * @return {Array}
@@ -268,11 +280,11 @@ cc.TextureCache = cc.Class.extend(/** @lends cc.TextureCache# */{
      */
     getTextureColors:function (texture) {
         var key = this.getKeyByTexture(texture);
-        if (key) {
+        if (!key) {
             if (texture instanceof HTMLImageElement) {
                 key = texture.src;
             } else {
-                return null;
+                key = this._generalTextureKey();
             }
         }
 

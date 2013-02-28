@@ -171,10 +171,8 @@ cc.MenuItem = cc.Node.extend(/** @lends cc.MenuItem# */{
             } else if (this._listener && (typeof(this._selector) == "function")) {
                 this._selector.call(this._listener, this);
             } else {
-                //console.log(this._selector);
-                this._selector();
+                this._selector(this);
             }
-
         }
     }
 });
@@ -261,8 +259,7 @@ cc.MenuItemLabel = cc.MenuItem.extend(/** @lends cc.MenuItemLabel# */{
             if (!enabled) {
                 this._colorBackup = this._label.getColor();
                 this._label.setColor(this._disabledColor);
-            }
-            else {
+            } else {
                 this._label.setColor(this._colorBackup);
             }
         }
@@ -294,7 +291,7 @@ cc.MenuItemLabel = cc.MenuItem.extend(/** @lends cc.MenuItemLabel# */{
      * @return {cc.Color3B}
      */
     getColor:function () {
-        return this._label.getColor
+        return this._label.getColor();
     },
 
     setOpacityModifyRGB:function (value) {
@@ -533,7 +530,7 @@ cc.MenuItemFont.setFontName = function (name) {
  * @return {String}
  */
 cc.MenuItemFont.fontName = function () {
-    return cc._fontName
+    return cc._fontName;
 };
 
 /**
@@ -909,17 +906,17 @@ cc.MenuItemImage = cc.MenuItemSprite.extend(/** @lends cc.MenuItemImage# */{
  * creates a new menu item image
  * @param {String} normalImage file name for normal state
  * @param {String} selectedImage image for selected state
- * @param {String|cc.Node} three Disabled image OR target
- * @param {String|function|Null} five callback function, either name in string, or pass the whole function
- * * @param {cc.Node|String|function|Null} four cc.Node target to run callback when clicked OR the callback
+ * @param {String|cc.Node} three Disabled image OR allback function
+ * @param {String|function|Null} four callback function, either name in string or pass the whole function OR the target
+ * @param {cc.Node|String|function|Null} five cc.Node target to run callback when clicked
  * @return {cc.MenuItemImage}
  * @example
  * // Example
- * var item = cc.MenuItemImage.create('normal.png', 'selected.png', gameScene, 'run')
  * //create a dom menu item with normal and selected state, when clicked it will run the run function from gameScene object
+ * var item = cc.MenuItemImage.create('normal.png', 'selected.png', 'run', gameScene)
  *
- * var item = cc.MenuItemImage.create('normal.png', 'selected.png', 'disabled.png',  gameScene, gameScene.run)
  * //same as above, but pass in the actual function and disabled image
+ * var item = cc.MenuItemImage.create('normal.png', 'selected.png', 'disabled.png', gameScene.run, gameScene)
  */
 cc.MenuItemImage.create = function (normalImage, selectedImage, three, four, five) {
     if (arguments.length == 0) {
@@ -1047,9 +1044,12 @@ cc.MenuItemToggle = cc.MenuItem.extend(/** @lends cc.MenuItemToggle# */{
         if (typeof args[args.length-2] === 'function') {
             this.initWithCallback( args[args.length-2], args[args.length-1] );
             l = l-2;
-        }
-        else
+        } else if(typeof args[args.length-1] === 'function'){
+            this.initWithCallback( args[args.length-1], null );
+            l = l-1;
+        } else {
             this.initWithCallback(null, null);
+        }
 
         this._subItems = [];
         for (var i = 0; i < l; i++) {
@@ -1101,7 +1101,7 @@ cc.MenuItemToggle = cc.MenuItem.extend(/** @lends cc.MenuItemToggle# */{
      * @param {Boolean} enabled
      */
     setEnabled:function (enabled) {
-        if (this._isEnabled == enabled) {
+        if (this._isEnabled != enabled) {
             this._super(enabled);
 
             if (this._subItems && this._subItems.length > 0) {

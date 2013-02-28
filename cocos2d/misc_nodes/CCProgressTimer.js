@@ -290,6 +290,7 @@ cc.ProgressTimer = cc.Node.extend(/** @lends cc.ProgressTimer# */{
                 context.translate(0, mpY);
                 context.scale(1, -1);
             }
+            context.translate(this._sprite._anchorPointInPoints.x, -this._sprite._anchorPointInPoints.y );
 
             var pos;
             if (this._type == cc.PROGRESS_TIMER_TYPE_BAR) {
@@ -297,11 +298,13 @@ cc.ProgressTimer = cc.Node.extend(/** @lends cc.ProgressTimer# */{
                     ( -this._sprite._anchorPointInPoints.y + this._sprite._offsetPosition.y + this._drawPosition.y));
 
                 if (this._sprite._texture instanceof HTMLImageElement) {
-                    context.drawImage(this._sprite._texture,
-                        this._sprite._rect.origin.x + this._origin.x, this._sprite._rect.origin.y + this._origin.y,
-                        this._originSize.width, this._originSize.height,
-                        pos.x, -(pos.y + this._drawSize.height),
-                        this._originSize.width, this._originSize.height);
+                    if ((this._originSize.width != 0) && (this._originSize.height != 0)) {
+                        context.drawImage(this._sprite._texture,
+                            this._sprite._rect.origin.x + this._origin.x, this._sprite._rect.origin.y + this._origin.y,
+                            this._originSize.width, this._originSize.height,
+                            pos.x, -(pos.y + this._drawSize.height),
+                            this._originSize.width, this._originSize.height);
+                    }
                 } else if (this._sprite._texture instanceof  HTMLCanvasElement) {
                     if ((this._originSize.width != 0) && (this._originSize.height != 0)) {
                         context.drawImage(this._sprite._texture,
@@ -334,6 +337,7 @@ cc.ProgressTimer = cc.Node.extend(/** @lends cc.ProgressTimer# */{
                         this._sprite._rect.size.width, this._sprite._rect.size.height,
                         pos.x, -(pos.y + this._sprite._rect.size.height),
                         this._sprite._rect.size.width, this._sprite._rect.size.height);
+
                 }
             }
         } else {

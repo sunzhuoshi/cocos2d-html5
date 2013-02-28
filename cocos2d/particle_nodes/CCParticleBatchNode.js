@@ -87,7 +87,7 @@ cc.ParticleBatchNode = cc.Node.extend(/** @lends cc.ParticleBatchNode# */{
      * @param {Number} capacity
      * @return {Boolean}
      */
-    initWithFile:function (fileImage, capacity) {
+    init:function (fileImage, capacity) {
         var tex = cc.TextureCache.getInstance().addImage(fileImage);
         return this.initWithTexture(tex, capacity);
     },
@@ -277,7 +277,8 @@ cc.ParticleBatchNode = cc.Node.extend(/** @lends cc.ParticleBatchNode# */{
      * @override
      * @param {CanvasContext} ctx
      */
-    draw:function (ctx) {
+     // XXX: Remove the "XXX_" prefix once WebGL is supported
+    XXX_draw:function (ctx) {
         cc.PROFILER_STOP("CCParticleBatchNode - draw");
         if (this._textureAtlas.getTotalQuads() == 0) {
             return;
@@ -320,7 +321,10 @@ cc.ParticleBatchNode = cc.Node.extend(/** @lends cc.ParticleBatchNode# */{
      * @param {Number} dst
      */
     setBlendFunc:function (src, dst) {
-        this._blendFunc = {src:src, dst:dst};
+        if(arguments.length == 1)
+            this._blendFunc = src;
+        else
+            this._blendFunc = {src:src, dst:dst};
     },
 
     /**
@@ -333,7 +337,8 @@ cc.ParticleBatchNode = cc.Node.extend(/** @lends cc.ParticleBatchNode# */{
 
     // override visit.
     // Don't call visit on it's children
-    visit:function (ctx) {
+    // XXX: Remove the "XXX_" prefix once WebGL is supported
+    XXX_visit:function (ctx) {
         // CAREFUL:
         // This visit is almost identical to cc.Node#visit
         // with the exception that it doesn't call visit on it's children
@@ -341,7 +346,7 @@ cc.ParticleBatchNode = cc.Node.extend(/** @lends cc.ParticleBatchNode# */{
         // The alternative is to have a void cc.Sprite#visit, but
         // although this is less mantainable, is faster
         //
-        if (!this._isVisible) {
+        if (!this._visible) {
             return;
         }
 
@@ -454,7 +459,7 @@ cc.ParticleBatchNode = cc.Node.extend(/** @lends cc.ParticleBatchNode# */{
 
         child.setParent(this);
 
-        if (this._isRunning) {
+        if (this._running) {
             child.onEnter();
             child.onEnterTransitionDidFinish();
         }
@@ -496,7 +501,7 @@ cc.ParticleBatchNode.createWithTexture = function (texture, capacity) {
  */
 cc.ParticleBatchNode.create = function (fileImage, capacity) {
     var ret = new cc.ParticleBatchNode();
-    if (ret && ret.initWithFile(fileImage, capacity)) {
+    if (ret && ret.init(fileImage, capacity)) {
         return ret;
     }
     return null;

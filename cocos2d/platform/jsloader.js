@@ -29,14 +29,16 @@
         'platform/CCClass.js',
         'platform/miniFramework.js',
         'platform/CCCommon.js',
-        'platform/platform.js',
         'platform/ZipUtils.js',
         'platform/base64.js',
         'platform/gzip.js',
         'platform/CCMacro.js',
         'platform/CCFileUtils.js',
         'platform/CCTypes.js',
+        'platform/CCAccelerometer.js',
+        'platform/zlib.min.js',
         'cocoa/CCGeometry.js',
+        'platform/Sys.js',
         'platform/CCConfig.js',
         'cocoa/CCSet.js',
         'cocoa/CCNS.js',
@@ -79,6 +81,7 @@
         'particle_nodes/CCParticleSystem.js',
         'particle_nodes/CCParticleSystemQuad.js',
         'particle_nodes/CCParticleExamples.js',
+        'particle_nodes/CCParticleBatchNode.js',
         'touch_dispatcher/CCTouchDelegateProtocol.js',
         'touch_dispatcher/CCTouchHandler.js',
         'touch_dispatcher/CCTouchDispatcher.js',
@@ -102,16 +105,15 @@
         'tileMap_parallax_nodes/CCTMXObjectGroup.js',
         'tileMap_parallax_nodes/CCTMXLayer.js',
         'tileMap_parallax_nodes/CCParallaxNode.js',
-        'menu_nodes/CCMenuItem.js',
-        'menu_nodes/CCMenu.js',
         'base_nodes/CCdomNode.js',
         '../CocosDenshion/SimpleAudioEngine.js'
+
     ];
 
     var d = document;
-    var c = d.querySelector('#cocos2d-html5').c;
+    var c = d.ccConfig;
 
-    if(c.loadExtension != null && c.loadExtension == true){
+    if (c.loadExtension != null && c.loadExtension == true) {
         engine = engine.concat([
             '../extensions/GUI/CCControlExtension/CCControl.js',
             '../extensions/GUI/CCControlExtension/CCControlButton.js',
@@ -132,7 +134,13 @@
             '../extensions/CCBReader/CCControlLoader.js',
             '../extensions/CCBReader/CCSpriteLoader.js',
             '../extensions/CCBReader/CCNodeLoaderLibrary.js',
-            '../extensions/CCBReader/CCBReader.js'
+            '../extensions/CCBReader/CCBReader.js',
+            '../extensions/CCBReader/CCBValue.js',
+            '../extensions/CCBReader/CCBKeyframe.js',
+            '../extensions/CCBReader/CCBSequence.js',
+            '../extensions/CCBReader/CCBRelativePositioning.js',
+            '../extensions/CCBReader/CCBAnimationManager.js',
+            '../extensions/CCControlEditBox.js'
         ]);
     }
 
@@ -140,12 +148,20 @@
         engine = [];
     }
     else {
+        if(c.box2d || c.chipmunk){
+            engine.push('Draw_Nodes/CCDrawNode.js');
+            engine.push('physics_nodes/CCPhysicsSprite.js');
+            engine.push('physics_nodes/CCPhysicsDebugNode.js');
+            if (c.box2d)
+                engine.push('../box2d/box2d.js');
+            if (c.chipmunk)
+                engine.push('../chipmunk/chipmunk.js');
+        }
         engine.forEach(function (e, i) {
             engine[i] = c.engineDir + e;
         });
     }
-    if (c.box2d)
-        engine.push('../box2d/box2d.js');
+
     var loaded = 0;
     var que = engine.concat(c.appFiles);
     que.push('main.js');

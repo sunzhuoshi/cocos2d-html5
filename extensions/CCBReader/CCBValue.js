@@ -24,70 +24,64 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-/**
- * time value
- * @Class
- * @extends cc.Class
- */
-cc.timeval = cc.Class.extend(/** @lends cc.timeval# */{
-    /**
-     * seconds
-     * @type Number
-     */
-    tv_sec:0,
-    /**
-     * microseconds
-     * @type Number
-     */
-    tv_usec:0//
+cc.INT_VALUE = 0;
+
+cc.FLOAT_VALUE = 1;
+
+cc.POINTER_VALUE = 2;
+
+cc.BOOL_VALUE = 3;
+
+cc.UNSIGNEDCHAR_VALUE = 4;
+
+
+cc.Color3BWapper = cc.Class.extend({
+    _color:null,
+    ctor:function () {
+        this._color = new cc.Color3B(0, 0, 0);
+    },
+    getColor:function () {
+        return this._color;
+    }
 });
 
-/**
- * @namespace
- */
-cc.Time = {};
-
-/**
- * get time of day
- * @return {cc.timeval}
- */
-cc.Time.gettimeofdayCocos2d = function (timeValue) {
-    var timeval = timeValue || new cc.timeval();
-    var tmp = Date.now();
-    timeval.tv_usec = (tmp % 1000) * 1000;
-    timeval.tv_sec = Math.floor(tmp / 1000);
-    return timeval;
-};
-
-/**
- * get system date (alias to Date.now())
- * @return {Date}
- */
-cc.Time.now = function (){
-    return Date.now();
-};
-
-/**
- * timer sub
- * @param {cc.timeval | Number} start start value
- * @param {cc.timeval | Number} end end value
- * @return {cc.timeval | Number}
- */
-cc.Time.timersubCocos2d = function (start, end) {
-    if (!out || !start || !end) {
-        return -1;
+cc.Color3BWapper.create = function (color) {
+    var ret = new cc.Color3BWapper();
+    if (ret) {
+        ret._color.r = color.r;
+        ret._color.g = color.g;
+        ret._color.b = color.b;
     }
-    if (start instanceof cc.timeval && end instanceof cc.timeval) {
-        var out = new cc.timeval();
-        out.tv_sec = end.tv_sec - start.tv_sec;
-        out.tv_usec = end.tv_usec - start.tv_usec;
-        if (end.tv_usec < start.tv_usec) {
-            out.tv_usec += 1000000;
-            out.tv_sec--;
+    return ret;
+};
+
+cc.BuilderValue = cc.Class.extend({
+    _value:null,
+    _type:0,
+
+    getIntValue:function () {
+    },
+    getFloatValue:function () {
+    },
+    getBoolValue:function () {
+    },
+    getByteValue:function () {
+    },
+    getPointer:function () {
+    },
+
+    getValue:function(){
+        return this._value;
+    }
+});
+
+cc.BuilderValue.create = function (value) {
+    var ret = new cc.BuilderValue();
+    if(ret){
+        if(typeof(value) == "number"){
+
         }
-        return out;
     }
-    else if (!isNaN(start) && !isNaN(end)) {
-        return end - start;
-    }
+    return ret;
 };
+

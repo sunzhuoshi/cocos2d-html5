@@ -294,12 +294,11 @@ cc.KeyboardDispatcher.getInstance = function () {
     if (!cc.keyboardDispatcher) {
         cc.keyboardDispatcher = new cc.KeyboardDispatcher();
         //make canvas focusable
-        cc.canvas.setAttribute('contentEditable', true);
+        cc.canvas.setAttribute('tabindex', 1);
         cc.canvas.style.outline = 'none';
         cc.canvas.style.cursor = 'default';
         cc.canvas.addEventListener("keydown", function (e) {
             cc.keyboardDispatcher.dispatchKeyboardMSG(e, true);
-            cc.IMEDispatcher.getInstance().processKeycode(e.keyCode);
         });
         cc.canvas.addEventListener("keyup", function (e) {
             cc.keyboardDispatcher.dispatchKeyboardMSG(e, false);
