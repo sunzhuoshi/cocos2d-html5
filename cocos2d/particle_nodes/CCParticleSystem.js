@@ -1396,14 +1396,7 @@ cc.ParticleSystem = cc.Node.extend(/** @lends cc.ParticleSystem# */{
 
                         cc.TextureCache.getInstance().cacheImage(fullpath, canvasObj);
 
-                        var addTexture = cc.TextureCache.getInstance().textureForKey(fullpath);
-
-                        cc.Assert(addTexture != null, "cc.ParticleSystem: error loading the texture");
-
-                        if (cc.renderContextType === cc.CANVAS)
-                            this.setTexture(canvasObj);
-                        else
-                            this.setTexture(addTexture);
+                        this.setTexture(canvasObj);
                     }
                 }
 
