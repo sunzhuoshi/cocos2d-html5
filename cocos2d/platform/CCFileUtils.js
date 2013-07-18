@@ -814,8 +814,9 @@ cc.DictMaker = cc.Class.extend(/** @lends cc.DictMaker# */{
      * @return {Array}
      */
     dictionaryWithContentsOfFile:function (fileName) {
+        var filePath = cc.FileUtils.getInstance().fullPathForFilename(fileName);
         var parser = cc.SAXParser.getInstance();
-        this.rootDict = parser.parse(fileName);
+        this.rootDict = parser.parse(filePath);
         return this.rootDict;
     }
 });
