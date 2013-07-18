@@ -832,11 +832,15 @@ cc.MenuItemSprite.create = function (normalSprite, selectedSprite, three, four, 
     var ret = new cc.MenuItemSprite();
     //when you send 4 arguments, five is undefined
     if (len == 5) {
-        disabledImage = arguments[2], callback = arguments[3], target = arguments[4];
+        disabledImage = arguments[2];
+        callback = arguments[3];
+        target = arguments[4];
     } else if (len == 4 && typeof arguments[3] === "function") {
-        disabledImage = arguments[2], callback = arguments[3];
+        disabledImage = arguments[2];
+        callback = arguments[3];
     } else if (len == 4 && typeof arguments[2] === "function") {
-        target = arguments[3], callback = arguments[2];
+        target = arguments[3];
+        callback = arguments[2];
     } else if (len <= 2) {
         disabledImage = arguments[2];
     }
@@ -1140,7 +1144,7 @@ cc.MenuItemToggle = cc.MenuItem.extend(/** @lends cc.MenuItemToggle# */{
  * // Example
  *
  * //create a toggle item with 2 menu items (which you can then toggle between them later)
- * var toggler = cc.MenuItemToggle.create(this, this.callback, cc.MenuItemFont.create("On"), cc.MenuItemFont.create("Off"))
+ * var toggler = cc.MenuItemToggle.create( cc.MenuItemFont.create("On"), cc.MenuItemFont.create("Off"), this.callback, this)
  * //Note: the first param is the target, the second is the callback function, afterwards, you can pass in any number of menuitems
  *
  * //if you pass only 1 variable, then it must be a cc.MenuItem
