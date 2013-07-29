@@ -50,7 +50,12 @@ cc.Control = cc.Layer.extend({
     _opacity:0,
     _color:null,
     _opacityModifyRGB:false,
-
+    _selector: null,
+    _target: null,
+    setCallback: function(selector, target) {
+        this._selector = selector;
+        this._target = target;
+    },
     isOpacityModifyRGB:function () {
         return this._opacityModifyRGB;
     },
@@ -145,6 +150,8 @@ cc.Control = cc.Layer.extend({
         this._super();
         this._dispatchTable = {};
         this._color = cc.white();
+        this._selector = null;
+        this._target = null;
     },
 
     init:function () {
@@ -197,6 +204,9 @@ cc.Control = cc.Layer.extend({
                     invocationList[j].invoke(this);
                 }
             }
+        }
+        if (typeof this._selector === 'function') {
+            this._selector.call(this._target, this, controlEvents);
         }
     },
 
