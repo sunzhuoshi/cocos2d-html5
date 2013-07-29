@@ -373,7 +373,6 @@ cc.Application = cc.Class.extend(/** @lends cc.Application# */{
                 cc.Director.getInstance().mainLoop();
                 window.requestAnimFrame(callback);
             };
-            cc.log(window.requestAnimFrame);
             window.requestAnimFrame(callback);
         } else {
             callback = function () {
