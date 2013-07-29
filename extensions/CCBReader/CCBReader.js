@@ -220,8 +220,7 @@ cc.BuilderReader = cc.Class.extend({
             animationManager = parentSize;
             parentSize = cc.Director.getInstance().getWinSize();
         }
-
-        var path = cc.FileUtils.getInstance().fullPathFromRelativePath(ccbFileName);
+        var path = cc.FileUtils.getInstance().fullPathForFilename(ccbFileName);
         var data = cc.FileUtils.getInstance().getByteArrayFromFile(path);
 
         return this.readNodeGraphFromData(data, owner, parentSize, animationManager);
@@ -973,8 +972,9 @@ cc.BuilderReader.load = function (ccbFilePath, owner, parentSize, ccbRootPath) {
         for (j = 0; j < documentCallbackNames.length; j++) {
             callbackName = documentCallbackNames[j];
             callbackNode = documentCallbackNodes[j];
-
-            callbackNode.setCallback(controller[callbackName], controller);
+            if (typeof callbackNode.setCallback === 'function') {
+                callbackNode.setCallback(controller[callbackName], controller);
+            }
         }
 
         // Variables
