@@ -294,7 +294,7 @@ if(cc.SPRITEBATCHNODE_RENDER_SUBPIXEL){
  * var aSprite = new cc.Sprite();
  * aSprite.initWithFile("HelloHTML5World.png",cc.rect(0,0,480,320));
  */
-cc.SpriteCanvas = cc.Node.extend(/** @lends cc.SpriteCanvas# */{
+cc.SpriteCanvas = cc.NodeRGBA.extend(/** @lends cc.SpriteCanvas# */{
     /// ---- common properties start ----
     RGBAProtocol:true,
     //
@@ -1444,7 +1444,7 @@ cc.SpriteCanvas.createWithSpriteFrame = function (spriteFrame) {
  * var aSprite = new cc.Sprite();
  * aSprite.initWithFile("HelloHTML5World.png",cc.rect(0,0,480,320));
  */
-cc.SpriteWebGL = cc.Node.extend(/** @lends cc.SpriteWebGL# */{
+cc.SpriteWebGL = cc.NodeRGBA.extend(/** @lends cc.SpriteWebGL# */{
     /// ---- common properties start ----
     RGBAProtocol:true,
     //

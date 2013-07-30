@@ -304,7 +304,7 @@ cc.SpriteFrameCache = cc.Class.extend(/** @lends cc.SpriteFrameCache# */{
      * @param {String} plist plist filename
      */
     removeSpriteFramesFromFile:function (plist) {
-        var path = cc.FileUtils.getInstance().fullPathFromRelativePath(plist);
+        var path = cc.FileUtils.getInstance().fullPathForFilename(plist);
         var dict = cc.FileUtils.getInstance().dictionaryWithContentsOfFileThreadSafe(path);
 
         this._removeSpriteFramesFromDictionary(dict);

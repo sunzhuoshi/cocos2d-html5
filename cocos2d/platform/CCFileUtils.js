@@ -163,7 +163,7 @@ cc.FileUtils = cc.Class.extend({
     },
 
     preloadBinaryFileData:function (fileUrl) {
-        fileUrl = this.fullPathFromRelativePath(fileUrl);
+        fileUrl = this.fullPathForFilename(fileUrl);
         var selfPointer = this;
 
         var xhr = this._getXMLHttpRequest();
@@ -240,7 +240,7 @@ cc.FileUtils = cc.Class.extend({
     },
 
     preloadTextFileData:function (fileUrl) {
-        fileUrl = this.fullPathFromRelativePath(fileUrl);
+        fileUrl = this.fullPathForFilename(fileUrl);
         var selfPointer = this;
 
         var xhr = this._getXMLHttpRequest();
@@ -300,6 +300,7 @@ cc.FileUtils = cc.Class.extend({
     },
 
     getTextFileData:function (fileUrl) {
+        fileUrl = cc.FileUtils.getInstance().fullPathForFilename(fileUrl);
         if (this._textFileCache.hasOwnProperty(fileUrl))
             return this._textFileCache[fileUrl];
         return this._loadTextFileData(fileUrl);
@@ -335,19 +336,6 @@ cc.FileUtils = cc.Class.extend({
      * @type {Boolean}
      */
     popupNotify:true,
-
-    /**
-     * Generate the absolute path of the file.
-     * @function
-     * @param {String} pszRelativePath
-     * @return {String} The absolute path of the file.
-     * @warning We only add the ResourcePath before the relative path of the file. <br/>
-     * If you have not set the ResourcePath,the function add "/NEWPLUS/TDA_DATA/UserData/" as default.<br/>
-     * You can set ResourcePath by function void setResourcePath(const char *resourcePath);
-     */
-    fullPathFromRelativePath:function (pszRelativePath) {
-        return pszRelativePath;
-    },
 
     /**
      * <p>
@@ -514,19 +502,6 @@ cc.FileUtils = cc.Class.extend({
 
     getResourceDirectory:function () {
         return this._directory;
-    },
-
-
-    /**
-     * Set the ResourcePath,we will find resource in this path
-     * @function
-     * @param {String} resourcePath The absolute resource path
-     * @warning Don't call this function in android and iOS, it has not effect.<br/>
-     * In android, if you want to read file other than apk, you shoud use invoke getByteArrayFromFile(), and pass the<br/>
-     * absolute path.
-     * @deprecated
-     */
-    setResourcePath:function (resourcePath) {
     },
 
     /**
