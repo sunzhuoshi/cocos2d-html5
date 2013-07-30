@@ -172,6 +172,7 @@ cc.SimpleAudioEngine = cc.AudioEngine.extend(/** @lends cc.SimpleAudioEngine# */
                 if(this._canPlay){
                     var sfxCache = new cc.SimpleSFX();
                     sfxCache.ext = extName;
+                    path = cc.FileUtils.getInstance().fullPathForFilename(path);
                     sfxCache.audio = new Audio(path);
                     sfxCache.audio.preload = 'auto';
                     sfxCache.audio.addEventListener('canplaythrough', function (e) {
