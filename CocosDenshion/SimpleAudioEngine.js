@@ -166,13 +166,13 @@ cc.SimpleAudioEngine = cc.AudioEngine.extend(/** @lends cc.SimpleAudioEngine# */
      */
     preloadSound:function (path) {
         if (this._soundEnable) {
+            path = cc.FileUtils.getInstance().fullPathForFilename(path);
             var extName = this._getExtFromFullPath(path);
             var keyname = this._getPathWithoutExt(path);
             if (this.isFormatSupported(extName) && !this._soundList.hasOwnProperty(keyname)) {
                 if(this._canPlay){
                     var sfxCache = new cc.SimpleSFX();
                     sfxCache.ext = extName;
-                    path = cc.FileUtils.getInstance().fullPathForFilename(path);
                     sfxCache.audio = new Audio(path);
                     sfxCache.audio.preload = 'auto';
                     sfxCache.audio.addEventListener('canplaythrough', function (e) {
@@ -209,6 +209,7 @@ cc.SimpleAudioEngine = cc.AudioEngine.extend(/** @lends cc.SimpleAudioEngine# */
      * cc.AudioEngine.getInstance().playMusic(path, false);
      */
     playMusic:function (path, loop) {
+        path = cc.FileUtils.getInstance().fullPathForFilename(path);
         var keyname = this._getPathWithoutExt(path);
         var extName = this._getExtFromFullPath(path);
         var au;
@@ -780,7 +781,7 @@ cc.WebAudioEngine = cc.AudioEngine.extend(/** @lends cc.WebAudioEngine# */{
         if (!this._soundEnable) {
             return;
         }
-
+        path = cc.FileUtils.getInstance().fullPathForFilename(path);
         var extName = this._getExtFromFullPath(path);
         var keyName = this._getPathWithoutExt(path);
 
@@ -923,6 +924,7 @@ cc.WebAudioEngine = cc.AudioEngine.extend(/** @lends cc.WebAudioEngine# */{
      * cc.AudioEngine.getInstance().playMusic(path, false);
      */
     playMusic: function (path, loop) {
+        path = cc.FileUtils.getInstance().fullPathForFilename(path);
         var keyName = this._getPathWithoutExt(path);
         var extName = this._getExtFromFullPath(path);
         loop = loop || false;

@@ -152,6 +152,7 @@ cc.Control = cc.Layer.extend({
         this._color = cc.white();
         this._selector = null;
         this._target = null;
+        this.setTouchPriority(cc.MENU_HANDLER_PRIORITY);
     },
 
     init:function () {
@@ -183,7 +184,7 @@ cc.Control = cc.Layer.extend({
         this._super();
     },
     registerWithTouchDispatcher:function () {
-        cc.Director.getInstance().getTouchDispatcher().addTargetedDelegate(this, cc.MENU_HANDLER_PRIORITY, true);
+        cc.Director.getInstance().getTouchDispatcher().addTargetedDelegate(this, this.getTouchPriority(), true);
     },
 
     /**
