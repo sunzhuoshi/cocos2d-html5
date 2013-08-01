@@ -372,6 +372,7 @@ cc.SimpleAudioEngine = cc.AudioEngine.extend(/** @lends cc.SimpleAudioEngine# */
      * var soundId = cc.AudioEngine.getInstance().playEffect(path);
      */
     playEffect:function (path, loop) {
+        path = cc.FileUtils.getInstance().fullPathForFilename(path);
         var keyname = this._getPathWithoutExt(path), actExt;
         if (this._soundList.hasOwnProperty(keyname)) {
             actExt = this._soundList[keyname].ext;
@@ -610,6 +611,9 @@ cc.SimpleAudioEngine = cc.AudioEngine.extend(/** @lends cc.SimpleAudioEngine# */
      */
     isFormatSupported:function (ext) {
         var tmpExt;
+        if (ext) {
+            ext = ext.toLowerCase();
+        }
         for (var i = 0; i < this._supportedFormat.length; i++) {
             tmpExt = this._supportedFormat[i];
             if (tmpExt == ext) {
@@ -1132,6 +1136,7 @@ cc.WebAudioEngine = cc.AudioEngine.extend(/** @lends cc.WebAudioEngine# */{
      * cc.AudioEngine.getInstance().playEffect(path);
      */
     playEffect: function(path, loop) {
+        path = cc.FileUtils.getInstance().fullPathForFilename(path);
         var keyName = this._getPathWithoutExt(path);
         var extName = this._getExtFromFullPath(path);
         loop = loop || false;

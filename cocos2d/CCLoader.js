@@ -29,12 +29,13 @@
  * @constant
  * @type Object
  */
+// NOTE: use ONLY lower case
 cc.RESOURCE_TYPE = {
-    "IMAGE":["JPG", "PNG", "png", "jpg", "bmp"],
+    "IMAGE":["png", "jpg", "bmp"],
     "SOUND":["mp3", "ogg", "wav", "mp4", "m4a"],
-    "XML":["FNT", "plist", "xml", "fnt", "tmx", "tsx"],
+    "XML":["plist", "xml", "fnt", "tmx", "tsx"],
     "BINARY":["ccbi"],
-    "FONT":"FONT",
+    "FONT":"font",
     "TEXT":["txt", "vsh", "fsh"],
     "UNKNOW":[]
 };
@@ -243,6 +244,9 @@ cc.Loader = cc.Class.extend(/** @lends cc.Loader# */{
         } else {
             var src = resInfo.src;
             var ext = src.substring(src.lastIndexOf(".") + 1, src.length);
+            if (ext) {
+                ext = ext.toLowerCase();
+            }
             for (var resType in cc.RESOURCE_TYPE) {
                 if (cc.RESOURCE_TYPE[resType].indexOf(ext) != -1) {
                     return resType;
