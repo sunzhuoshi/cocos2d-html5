@@ -946,18 +946,22 @@ cc.SpriteCanvas = cc.NodeRGBA.extend(/** @lends cc.SpriteCanvas# */{
         if (!texture) {
             this._visible = false;
             var loadImg = new Image();
+            var filePath = cc.FileUtils.getInstance().fullPathForFilename(filename);
             loadImg.addEventListener("load", function () {
                 if (!rect) {
                     rect = cc.rect(0, 0, loadImg.width, loadImg.height);
                 }
                 selfPointer.initWithTexture(loadImg, rect);
-                cc.TextureCache.getInstance().cacheImage(filename, loadImg);
+                cc.TextureCache.getInstance().cacheImage(
+                    filePath,
+                    loadImg
+                );
                 selfPointer._visible = true;
             });
             loadImg.addEventListener("error", function () {
-                cc.log("load failure:" + filename);
+                cc.log("load failure:" + filePath);
             });
-            loadImg.src = filename;
+            loadImg.src = filePath;
             return true;
         } else {
             if (texture) {
@@ -2137,6 +2141,7 @@ cc.SpriteWebGL = cc.NodeRGBA.extend(/** @lends cc.SpriteWebGL# */{
         if (!texture) {
             this._visible = false;
             var loadImg = new Image();
+            var filePath = cc.FileUtils.getInstance().fullPathForFilename(filename);
             loadImg.addEventListener("load", function () {
                 if (!rect) {
                     rect = cc.rect(0, 0, loadImg.width, loadImg.height);
@@ -2145,13 +2150,13 @@ cc.SpriteWebGL = cc.NodeRGBA.extend(/** @lends cc.SpriteWebGL# */{
                 texture2d.initWithElement(loadImg);
                 texture2d.handleLoadedTexture();
                 selfPointer.initWithTexture(texture2d, rect);
-                cc.TextureCache.getInstance().cacheImage(filename, loadImg);
+                cc.TextureCache.getInstance().cacheImage(filePath, loadImg);
                 selfPointer._visible = true;
             });
             loadImg.addEventListener("error", function () {
-                cc.log("load failure:" + filename);
+                cc.log("load failure:" + filePath);
             });
-            loadImg.src = filename;
+            loadImg.src = filePath;
             return true;
         } else {
             if (texture) {
