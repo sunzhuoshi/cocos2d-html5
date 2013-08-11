@@ -287,7 +287,7 @@ cc.BMFontConfiguration = cc.Class.extend(/** @lends cc.BMFontConfiguration# */{
         this.padding.top = tmpPadding[2];
         this.padding.right = tmpPadding[3];
         this.padding.bottom = tmpPadding[4];
-        cc.log("cocos2d: padding: " + this.padding.left + "," + this.padding.top + "," + this.padding.right + "," + this.padding.bottom);
+        //cc.log("cocos2d: padding: " + this.padding.left + "," + this.padding.top + "," + this.padding.right + "," + this.padding.bottom);
     },
 
     _parseCommonArguments:function (line) {

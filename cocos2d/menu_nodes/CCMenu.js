@@ -55,7 +55,9 @@ cc.DEFAULT_PADDING = 5;
 cc.Menu = cc.Layer.extend(/** @lends cc.Menu# */{
     RGBAProtocol:true,
     _color:new cc.Color3B(),
-
+    ctor: function() {
+        this.setTouchPriority(cc.MENU_HANDLER_PRIORITY);
+    },
     /**
      * @return {cc.Color3B}
      */
@@ -404,7 +406,7 @@ cc.Menu = cc.Layer.extend(/** @lends cc.Menu# */{
      * make the menu clickable
      */
     registerWithTouchDispatcher:function () {
-        cc.Director.getInstance().getTouchDispatcher().addTargetedDelegate(this, cc.MENU_HANDLER_PRIORITY, true);
+        cc.Director.getInstance().getTouchDispatcher().addTargetedDelegate(this, this.getTouchPriority(), true);
     },
 
     /**
