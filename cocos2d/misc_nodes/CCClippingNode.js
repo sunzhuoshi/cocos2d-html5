@@ -66,9 +66,14 @@ cc.ClippingNode = cc.Node.extend(/** @lends cc.ClippingNode# */{
         // get (only once) the number of bits of the stencil buffer
         cc.ClippingNode._init_once = true;
         if(cc.ClippingNode._init_once){
-            cc.stencilBits = cc.renderContext.getParameter(cc.renderContext.STENCIL_BITS);
-            if(cc.stencilBits <= 0)
-                cc.log("Stencil buffer is not enabled.");
+            if (cc.renderContext.getParameter) {
+                cc.stencilBits = cc.renderContext.getParameter(cc.renderContext.STENCIL_BITS);
+                if(cc.stencilBits <= 0)
+                    cc.log("Stencil buffer is not enabled.");
+            }
+            else {
+                cc.log("renderContext.getParameter not supported.");
+            }
             cc.ClippingNode._init_once = false;
         }
         return true;
