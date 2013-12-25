@@ -652,6 +652,7 @@ cc.LabelBMFont = cc.SpriteBatchNode.extend(/** @lends cc.LabelBMFont# */{
             var element = this._configuration.fontDefDictionary[key];
             if (!element) {
                 cc.log("cocos2d: LabelBMFont: character not found " + this._string[i]);
+                console.trace();
                 continue;
             }
 

@@ -71,9 +71,6 @@ cc.ClippingNode = cc.Node.extend(/** @lends cc.ClippingNode# */{
                 if(cc.stencilBits <= 0)
                     cc.log("Stencil buffer is not enabled.");
             }
-            else {
-                cc.log("renderContext.getParameter not supported.");
-            }
             cc.ClippingNode._init_once = false;
         }
         return true;
