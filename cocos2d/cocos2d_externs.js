@@ -175,6 +175,7 @@ cc.MenuItem.prototype.setNormalImage = function(normalImage){};
 cc.Node = function(){};
 cc.Node.create = function(){};
 cc.Node.prototype.addChild = function(child, zOrder, tag){};
+cc.Node.prototype.controller; // controller for CCBI
 cc.Node.prototype.convertToNodeSpace = function(position){};
 cc.Node.prototype.convertToWorldSpace = function(position){};
 cc.Node.prototype.convertTouchToNodeSpace = function(touch){};
