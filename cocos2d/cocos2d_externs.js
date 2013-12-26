@@ -59,6 +59,12 @@ cc.TOUCH_ONE_BY_ONE;
 cc.VERTICAL_TEXT_ALIGNMENT_CENTER;
 cc.VERTICAL_TEXT_ALIGNMENT_TOP;
 
+cc.VERTEX_ATTRIB_FLAG_POSITION;
+cc.VERTEX_ATTRIB_FLAG_TEXCOORDS;
+
+cc.VERTEX_ATTRIB_POSITION;
+cc.VERTEX_ATTRIB_TEX_COORDS;
+
 // colors
 cc.BLACK;
 cc.BLUE;
@@ -71,6 +77,7 @@ cc.YELLOW;
 // cc utility methods
 cc.log = function(message){};
 cc.pointEqualToPoint = function(point1, point2){};
+cc.glEnableVertexAttribs = function(flags){};
 
 cc.ActionInterval = function(){};
 cc.ActionInterval.reverse = function(){};
@@ -114,10 +121,12 @@ cc.DelayTime.create = function(){};
 cc.Director = function(){};
 cc.Director.getInstance = function(){};
 cc.Director.prototype.getRunningScene = function(){};
-cc.Director.prototype.replaceScene = function(scene){};
-cc.Director.prototype.runWithScene = function(scene){};
 cc.Director.prototype.getVisibleSize = function(){};
 cc.Director.prototype.getWinSize = function(){};
+cc.Director.prototype.getZEye = function(){};
+cc.Director.prototype.replaceScene = function(scene){};
+cc.Director.prototype.runWithScene = function(scene){};
+cc.Director.prototype.setDepthTest = function (on){};
 
 cc.DrawNode = function(){};
 cc.DrawNode.create = function(){};
@@ -130,6 +139,7 @@ cc.FadeOut = function(){};
 cc.FadeOut.create = function(duration){};
 
 cc.GLNode = function(){};
+cc.GLNode.create = function(){};
 
 cc.GLProgram = function(){};
 cc.GLProgram.prototype.addAttribute = function(name, value){};
@@ -143,6 +153,19 @@ cc.GLProgram.prototype.setUniformLocationWithMatrix4fv = function(matrix){};
 cc.GLProgram.prototype.setUniformLocationF32 = function(valueList){};
 cc.GLProgram.prototype.updateUniforms = function(){};
 cc.GLProgram.prototype.use = function(){};
+
+cc.kmMat4 = function(){};
+cc.kmMat4.prototype.mat;
+cc.kmMat4Identity = function(out){};
+cc.kmMat4LookAt = function (out, eye, center, up){};
+cc.kmMat4Multiply = function(out, m1, m2){};
+cc.kmMat4PerspectiveProjection = function(out, fovY, aspect, zNear, zFar){};
+cc.kmMat4Scaling = function(out, x, y, z){};
+cc.kmMat4Translation = function(out, x, y, z){};
+
+cc.kmVec3 = function(){};
+cc.kmVec3Fill = function(out, x, y, z){};
+cc.kmVec3Transform = function(out, v, m){};
 
 cc.LabelBMFont = function(){};
 cc.LabelBMFont.prototype.getString = function(){};
@@ -184,6 +207,8 @@ cc.Node.prototype.getActionByTag = function(tag){};
 cc.Node.prototype.getBoundingBox = function(){};
 cc.Node.prototype.getContentSize = function(){};
 cc.Node.prototype.getPosition = function(){};
+cc.Node.prototype.getPositionX = function(){};
+cc.Node.prototype.getPositionY = function(){};
 cc.Node.prototype.getScale = function(){};
 cc.Node.prototype.getScaleX = function(){};
 cc.Node.prototype.getScaleY = function(){};
@@ -232,6 +257,10 @@ cc.rectContainsPoint = function(rect, point){};
 cc.RenderTexture = function(){};
 cc.RenderTexture.create  = function(width, height, format, depthStencilFormat){};
 cc.RenderTexture.prototype.setAutoDraw = function(autoDraw){};
+cc.RenderTexture.prototype.beginWithClear = function(r, g, b, a, depthValue, stencilValue){};
+
+cc.Repeat = function(){};
+cc.Repeat.create = function(action, times){};
 
 cc.RepeatForever = function(){};
 cc.RepeatForever.create = function(action){};
