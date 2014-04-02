@@ -36,7 +36,7 @@ cc.RESOURCE_TYPE = {
     "XML":["plist", "xml", "fnt", "tmx", "tsx"],
     "BINARY":["ccbi"],
     "FONT":"font",
-    "TEXT":["txt", "vsh", "fsh"],
+    "TEXT":["txt", "vsh", "fsh", "csv"],
     "UNKNOW":[]
 };
 
