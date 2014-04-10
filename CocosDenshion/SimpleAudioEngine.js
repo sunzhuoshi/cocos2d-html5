@@ -118,6 +118,7 @@ cc.SimpleAudioEngine = cc.AudioEngine.extend(/** @lends cc.SimpleAudioEngine# */
     _effectList:{},
     _soundList:{},
     _playingMusic:null,
+    _musicVolume: 1,
     _effectsVolume:1,
     _maxAudioInstance:10,
     _canPlay:true,
@@ -234,6 +235,7 @@ cc.SimpleAudioEngine = cc.AudioEngine.extend(/** @lends cc.SimpleAudioEngine# */
         au.addEventListener("pause", this._musicListener , false);
 
         au.loop = loop || false;
+        au.volume = this.getMusicVolume();
         au.play();
         cc.AudioEngine.isMusicPlaying = true;
     },
@@ -319,10 +321,7 @@ cc.SimpleAudioEngine = cc.AudioEngine.extend(/** @lends cc.SimpleAudioEngine# */
      * var volume = cc.AudioEngine.getInstance().getMusicVolume();
      */
     getMusicVolume:function () {
-        if (this._soundList.hasOwnProperty(this._playingMusic)) {
-            return this._soundList[this._playingMusic].audio.volume;
-        }
-        return 0;
+        return this._musicVolume;
     },
 
     /**
@@ -333,17 +332,20 @@ cc.SimpleAudioEngine = cc.AudioEngine.extend(/** @lends cc.SimpleAudioEngine# */
      * cc.AudioEngine.getInstance().setMusicVolume(0.5);
      */
     setMusicVolume:function (volume) {
+        if (volume > 1) {
+            volume = 1;
+        } else if (volume < 0) {
+            volume = 0;
+        }
+
+        if (this.getMusicVolume() == volume) {
+            // it is the same, no need to update
+            return;
+        }
+
+        this._musicVolume = volume;
         if (this._soundList.hasOwnProperty(this._playingMusic)) {
-            var music = this._soundList[this._playingMusic].audio;
-            if (volume > 1) {
-                music.volume = 1;
-            }
-            else if (volume < 0) {
-                music.volume = 0;
-            }
-            else {
-                music.volume = volume;
-            }
+            this._soundList[this._playingMusic].audio.volume = volume;
         }
     },
 
