@@ -43,8 +43,8 @@ var cocos2dApp = cc.Application.extend({
         // initialize director
         var director = cc.Director.getInstance();
 
-        // enable High Resource Mode(2x, such as iphone4) and maintains low resource on other devices.
-        //director.enableRetinaDisplay(true);
+        cc.EGLView.getInstance().resizeWithBrowserSize(true);
+        cc.EGLView.getInstance().setDesignResolutionSize(800, 450, cc.RESOLUTION_POLICY.SHOW_ALL);
 
         // turn on display FPS
         director.setDisplayStats(this.config['showFPS']);
@@ -53,7 +53,7 @@ var cocos2dApp = cc.Application.extend({
         director.setAnimationInterval(1.0 / this.config['frameRate']);
 
         //load resources
-        cc.LoaderScene.preload(g_ressources, function () {
+        cc.LoaderScene.preload(g_resources, function () {
             director.replaceScene(new this.startScene());
         }, this);
 
