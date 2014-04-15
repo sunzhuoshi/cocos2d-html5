@@ -44,6 +44,7 @@ cc.LabelTTFCanvas = cc.Sprite.extend(/** @lends cc.LabelTTFCanvas# */{
     _isMultiLine:false,
     _fontStyleStr:null,
     _colorStyleStr:null,
+    _adjustsFontSizeToFitWidth: false,
     /**
      * Constructor
      */
@@ -68,7 +69,12 @@ cc.LabelTTFCanvas = cc.Sprite.extend(/** @lends cc.LabelTTFCanvas# */{
     description:function () {
         return "<cc.LabelTTF | FontName =" + this._fontName + " FontSize = " + this._fontSize.toFixed(1) + ">";
     },
-
+    setAdjustsFontSizeToFitWidth: function(adjust) {
+        this._adjustsFontSizeToFitWidth = adjust;
+    },
+    getAdjustsFontSizeToFitWidth: function() {
+        return this._adjustsFontSizeToFitWidth;
+    },
     setColor:function (color3) {
         if ((this._color.r == color3.r) && (this._color.g == color3.g) && (this._color.b == color3.b))
             return;
@@ -280,7 +286,16 @@ cc.LabelTTFCanvas = cc.Sprite.extend(/** @lends cc.LabelTTFCanvas# */{
         // we need to find out if the label needs multiline, if its automatic new line or specified newline
         var stringWidth = context.measureText(this._string).width;
         var locDimensionsWidth = this._dimensions.width;
-        if (this._string.indexOf('\n') !== -1 || (locDimensionsWidth !== 0 && stringWidth > locDimensionsWidth && this._string.indexOf(" ") !== -1)) {
+        var fontSize = this._fontSize, fontSizeStep = 1;
+        if (this._adjustsFontSizeToFitWidth && 0 < locDimensionsWidth) {
+            while (stringWidth > locDimensionsWidth) {
+                fontSize -= fontSizeStep;
+                context.font = fontSize + "px '" + this._fontName + "'";
+                stringWidth = context.measureText(this._string).width;
+            }
+            this.setFontSize(fontSize);
+        }
+        else if (this._string.indexOf('\n') !== -1 || (locDimensionsWidth !== 0 && stringWidth > locDimensionsWidth && this._string.indexOf(" ") !== -1)) {
             var strings = this._strings = this._string.split('\n');
             var lineWidths = this._lineWidths = [];
             for (var i = 0; i < strings.length; i++) {
@@ -424,6 +439,7 @@ cc.LabelTTFWebGL = cc.Sprite.extend(/** @lends cc.LabelTTFWebGL# */{
     _isMultiLine:false,
     _fontStyleStr:null,
     _colorStyleStr:null,
+    _adjustsFontSizeToFitWidth: false,
     /**
      * Constructor
      */
@@ -449,7 +465,12 @@ cc.LabelTTFWebGL = cc.Sprite.extend(/** @lends cc.LabelTTFWebGL# */{
     description:function () {
         return "<cc.LabelTTF | FontName =" + this._fontName + " FontSize = " + this._fontSize.toFixed(1) + ">";
     },
-
+    setAdjustsFontSizeToFitWidth: function(adjust) {
+        this._adjustsFontSizeToFitWidth = adjust;
+    },
+    getAdjustsFontSizeToFitWidth: function() {
+        return this._adjustsFontSizeToFitWidth;
+    },
     setColor:function (color3) {
         if ((this._color.r == color3.r) && (this._color.g == color3.g) && (this._color.b == color3.b))
             return;
@@ -709,9 +730,17 @@ cc.LabelTTFWebGL = cc.Sprite.extend(/** @lends cc.LabelTTFWebGL# */{
 
     _updateTTF:function () {
         var locDimensionsWidth = this._dimensions.width, locLabelContext = this._labelContext;
-
         var stringWidth = locLabelContext.measureText(this._string).width;
-        if(this._string.indexOf('\n') !== -1 || (locDimensionsWidth !== 0 && stringWidth > locDimensionsWidth && this._string.indexOf(" ") !== -1)) {
+        var fontSize = this._fontSize, fontSizeStep = 1;
+        if (this._adjustsFontSizeToFitWidth && 0 < locDimensionsWidth) {
+            while (stringWidth > locDimensionsWidth) {
+                fontSize -= fontSizeStep;
+                locLabelContext.font = fontSize + "px '" + this._fontName + "'";
+                stringWidth = locLabelContext.measureText(this._string).width;
+            }
+            this.setFontSize(fontSize);
+        }
+        else if(this._string.indexOf('\n') !== -1 || (locDimensionsWidth !== 0 && stringWidth > locDimensionsWidth && this._string.indexOf(" ") !== -1)) {
             var strings = this._strings = this._string.split('\n');
             var lineWidths = this._lineWidths = [];
             for (var i = 0; i < strings.length; i++) {
