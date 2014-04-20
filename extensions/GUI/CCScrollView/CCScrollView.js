@@ -260,7 +260,7 @@ cc.ScrollView = cc.Layer.extend({
 
         var viewRect = cc.RectMake(-offset.x / scale, -offset.y / scale, size.width / scale, size.height / scale);
 
-        return cc.CCRectIntersectsRect(viewRect, node.getBoundingBox());
+        return cc.rectIntersectsRect(viewRect, node.getBoundingBox());
     },
 
     /**
