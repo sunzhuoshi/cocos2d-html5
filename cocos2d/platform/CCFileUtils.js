@@ -260,7 +260,7 @@ cc.FileUtils = cc.Class.extend({
             };
         } else {
             if (xhr.overrideMimeType)
-                xhr.overrideMimeType("text\/plain; charset=x-user-defined");
+                xhr.overrideMimeType('text\/plain; charset=UTF-8'); // use UTF-8 as default charset for text file
             xhr.onload = function (e) {
                 if (xhr.responseText) {
                     cc.Loader.getInstance().onResLoaded();
@@ -288,7 +288,7 @@ cc.FileUtils = cc.Class.extend({
             }
         } else {
             if (req.overrideMimeType)
-                req.overrideMimeType('text\/plain; charset=x-user-defined');
+                req.overrideMimeType('text\/plain; charset=UTF-8'); // use UTF-8 as default charset for text file
             req.send(null);
             if (req.status != 200)
                 return null;
