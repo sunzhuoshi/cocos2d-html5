@@ -121,6 +121,7 @@ cc.DelayTime.create = function(){};
 cc.Director = function(){};
 cc.Director.getInstance = function(){};
 cc.Director.prototype.getRunningScene = function(){};
+cc.Director.prototype.getScheduler = function(){};
 cc.Director.prototype.getVisibleSize = function(){};
 cc.Director.prototype.getWinSize = function(){};
 cc.Director.prototype.getZEye = function(){};
@@ -134,6 +135,10 @@ cc.DrawNode.prototype.drawPoly = function(verts, fillColor, borderWidth, borderC
 
 cc.FadeIn = function(){};
 cc.FadeIn.create = function(duration){};
+
+cc.FileUtils = function(){};
+cc.FileUtils.getInstance = function(){};
+cc.FileUtils.prototype.getTextFileData = function(filePath){};
 
 cc.FadeOut = function(){};
 cc.FadeOut.create = function(duration){};
@@ -179,6 +184,7 @@ cc.LabelTTF.prototype.setDimensions = function(size){};
 cc.LabelTTF.prototype.setFontSize = function(size){};
 cc.LabelTTF.prototype.setHorizontalAlignment = function(alignment){};
 cc.LabelTTF.prototype.setVerticalAlignment = function(alignment){};
+cc.LabelTTF.prototype.setAdjustsFontSizeToFitWidth = function(adjuest){};
 
 cc.JumpBy = function(){};
 cc.JumpBy.create = function(duration, position, height, jumps){};
@@ -204,6 +210,7 @@ cc.Node.prototype.convertToWorldSpace = function(position){};
 cc.Node.prototype.convertTouchToNodeSpace = function(touch){};
 cc.Node.prototype.draw = function(){};
 cc.Node.prototype.getActionByTag = function(tag){};
+cc.Node.prototype.getAnchorPoint = function(){};
 cc.Node.prototype.getBoundingBox = function(){};
 cc.Node.prototype.getContentSize = function(){};
 cc.Node.prototype.getPosition = function(){};
@@ -212,6 +219,7 @@ cc.Node.prototype.getPositionY = function(){};
 cc.Node.prototype.getScale = function(){};
 cc.Node.prototype.getScaleX = function(){};
 cc.Node.prototype.getScaleY = function(){};
+cc.Node.prototype.getTag = function(){};
 cc.Node.prototype.isVisible = function(){};
 cc.Node.prototype.onTouchBegan = function(touch, event){};
 cc.Node.prototype.onTouchEnded = function(touch, event){};
@@ -227,6 +235,8 @@ cc.Node.prototype.scheduleUpdate = function(){};
 cc.Node.prototype.setAnchorPoint = function(anchorPoint){};
 cc.Node.prototype.setContentSize = function(size){};
 cc.Node.prototype.setPosition = function(position){};
+cc.Node.prototype.setPositionX = function(positionX){};
+cc.Node.prototype.setPositionY = function(positionY){};
 cc.Node.prototype.setScale = function(scale){};
 cc.Node.prototype.setScaleX = function(scale){};
 cc.Node.prototype.setScaleY = function(scale){};
@@ -274,8 +284,12 @@ cc.ScaleTo.create = function(duration, toScale){};
 cc.ScaleBy = function(){};
 cc.ScaleBy.create = function(duration, byScale){};
 
+cc.Scheduler = function(){};
+cc.Scheduler.prototype.scheduleCallbackForTarget = function(target, callback_fn, interval, repeat, delay, paused){};
+
 cc.ScrollView = function(){};
 cc.ScrollView.prototype.getContentOffset = function(){};
+cc.ScrollView.prototype.isNodeVisible = function(node){};
 cc.ScrollView.prototype.maxContainerOffset = function(){};
 cc.ScrollView.prototype.minContainerOffset = function(){};
 cc.ScrollView.prototype.setClippingToBounds = function(clippingToBounds){};
@@ -297,6 +311,7 @@ cc.MoveTo.create = function(duration, position){};
 cc.Sprite = function(){};
 cc.Sprite.prototype.init = function(fileName){};
 cc.Sprite.prototype.setVisible = function(visible){};
+cc.Sprite.prototype.setTextureRect = function(texture, rect){};
 
 cc.SpriteBatchNode = function(){};
 cc.SpriteBatchNode.prototype.setOpacity = function(opacity){};
