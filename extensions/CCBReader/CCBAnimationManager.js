@@ -613,7 +613,7 @@ cc.BuilderAnimationManager = cc.Class.extend({
             this._delegate.completedAnimationSequenceNamed(this._runningSequence.getName());
 
         if(this._target && this._animationCompleteCallbackFunc){
-            this._animationCompleteCallbackFunc.call(this._target, this._runningSequence.getName());
+            this._animationCompleteCallbackFunc.call(this._target, this._rootNode, this._runningSequence.getName());
         }
 
         var nextSeqId = this._runningSequence.getChainedSequenceId();
