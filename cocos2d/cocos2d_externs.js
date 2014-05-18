@@ -51,13 +51,15 @@ var cc = {};
 cc.CONTROL_EVENT_TOUCH_DRAG_INSIDE;
 cc.CONTROL_EVENT_TOUCH_UP_INSIDE;
 
-cc.TEXT_ALIGNMENT_CENTER;
-cc.TEXT_ALIGNMENT_RIGHT;
+cc.TEXT_ALIGNMENT_LEFT  = 0;
+cc.TEXT_ALIGNMENT_CENTER = 1;
+cc.TEXT_ALIGNMENT_RIGHT = 2;
 
 cc.TOUCH_ONE_BY_ONE;
 
-cc.VERTICAL_TEXT_ALIGNMENT_CENTER;
-cc.VERTICAL_TEXT_ALIGNMENT_TOP;
+cc.VERTICAL_TEXT_ALIGNMENT_TOP = 0;
+cc.VERTICAL_TEXT_ALIGNMENT_CENTER = 1;
+cc.VERTICAL_TEXT_ALIGNMENT_BOTTOM = 2;
 
 cc.VERTEX_ATTRIB_FLAG_POSITION;
 cc.VERTEX_ATTRIB_FLAG_TEXCOORDS;
@@ -139,6 +141,7 @@ cc.FadeIn.create = function(duration){};
 cc.FileUtils = function(){};
 cc.FileUtils.getInstance = function(){};
 cc.FileUtils.prototype.getTextFileData = function(filePath){};
+cc.FileUtils.prototype.getStringFromFile = function(filePath){};
 
 cc.FadeOut = function(){};
 cc.FadeOut.create = function(duration){};
