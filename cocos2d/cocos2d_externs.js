@@ -130,6 +130,7 @@ cc.Director.prototype.getZEye = function(){};
 cc.Director.prototype.replaceScene = function(scene){};
 cc.Director.prototype.runWithScene = function(scene){};
 cc.Director.prototype.setDepthTest = function (on){};
+cc.Director.prototype.setNotificationNode = function(node){};
 
 cc.DrawNode = function(){};
 cc.DrawNode.create = function(){};
