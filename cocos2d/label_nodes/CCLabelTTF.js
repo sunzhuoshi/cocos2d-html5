@@ -88,6 +88,9 @@ cc.LabelTTFCanvas = cc.Sprite.extend(/** @lends cc.LabelTTFCanvas# */{
             return;
         cc.Sprite.prototype.setOpacity.call(this, opacity);
         this._setColorStyleStr();
+        if ('function' === typeof this.onOpacitySet) {
+            this.onOpacitySet(opacity);
+        }
     },
 
     _setColorStyleStr:function () {
@@ -485,6 +488,9 @@ cc.LabelTTFWebGL = cc.Sprite.extend(/** @lends cc.LabelTTFWebGL# */{
             return;
         cc.Sprite.prototype.setOpacity.call(this, opacity);
         this._setColorStyleStr();
+        if ('function' === typeof this.onOpacitySet) {
+            this.onOpacitySet(opacity);
+        }
     },
 
     _setColorStyleStr:function () {

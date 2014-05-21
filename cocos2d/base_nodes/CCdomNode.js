@@ -283,6 +283,9 @@ cc.DOM.methods = /** @lends cc.DOM# */{
     setOpacity:function (o) {
         this._opacity = o;
         this.dom.style.opacity = o / 255;
+        if ('function' === typeof this.onOpacitySet) {
+            this.onOpacitySet(opacity);
+        }
     },
     /**
      * refresh/updates the DOM element

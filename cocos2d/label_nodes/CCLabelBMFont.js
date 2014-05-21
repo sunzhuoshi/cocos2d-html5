@@ -482,6 +482,9 @@ cc.LabelBMFont = cc.SpriteBatchNode.extend(/** @lends cc.LabelBMFont# */{
                     node.setOpacity(this._opacity);
             }
         }
+        if ('function' === typeof this.onOpacitySet) {
+            this.onOpacitySet(opacity);
+        }
     },
 
     /**

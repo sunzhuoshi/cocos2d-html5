@@ -271,6 +271,9 @@ cc.MenuItemLabel = cc.MenuItem.extend(/** @lends cc.MenuItemLabel# */{
      */
     setOpacity:function (opacity) {
         this._label.setOpacity(opacity);
+        if ('function' === typeof this.onOpacitySet) {
+            this.onOpacitySet(opacity);
+        }
     },
 
     /**

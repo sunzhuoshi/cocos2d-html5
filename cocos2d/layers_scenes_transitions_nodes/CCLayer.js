@@ -633,6 +633,9 @@ cc.LayerColorCanvas = cc.Layer.extend(/** @lends cc.LayerColorCanvas# */{
         this._opacity = Var;
         this._updateColor();
         this.setNodeDirty();
+        if ('function' === typeof this.onOpacitySet) {
+            this.onOpacitySet(opacity);
+        }
     },
 
     /**
@@ -833,6 +836,9 @@ cc.LayerColorWebGL = cc.Layer.extend(/** @lends cc.LayerColorCanvas# */{
         this._opacity = Var;
         this._updateColor();
         this.setNodeDirty();
+        if ('function' === typeof this.onOpacitySet) {
+            this.onOpacitySet(opacity);
+        }
     },
 
     /**

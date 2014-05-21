@@ -268,6 +268,9 @@ cc.ControlButton = cc.Control.extend({
         for (var itemKey in this._backgroundSpriteDispatchTable) {
             this._backgroundSpriteDispatchTable[itemKey].setOpacity(opacity);
         }
+        if ('function' === typeof this.onOpacitySet) {
+            this.onOpacitySet(opacity);
+        }
     },
 
     /** Flag to know if the button is currently pushed.  */

@@ -217,6 +217,9 @@ cc.AtlasNodeCanvas = cc.Node.extend(/** @lends cc.AtlasNode# */{
         if (this._opacityModifyRGB) {
             this.setColor(this._colorUnmodified);
         }
+        if ('function' === typeof this.onOpacitySet) {
+            this.onOpacitySet(opacity);
+        }
     },
 
     // cc.Texture protocol
@@ -464,6 +467,9 @@ cc.AtlasNodeWebGL = cc.Node.extend({
             this.setColor(this._colorUnmodified);
         } else {
             this._colorF32Array = new Float32Array([this._color.r / 255.0, this._color.g / 255.0, this._color.b / 255.0, this._opacity / 255.0]);
+        }
+        if ('function' === typeof this.onOpacitySet) {
+            this.onOpacitySet(opacity);
         }
     },
 

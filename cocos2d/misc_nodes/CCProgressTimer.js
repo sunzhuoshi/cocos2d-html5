@@ -233,6 +233,9 @@ cc.ProgressTimerCanvas = cc.Node.extend(/** @lends cc.ProgressTimerCanvas# */{
      */
     setOpacity:function (opacity) {
         this._sprite.setOpacity(opacity);
+        if ('function' === typeof this.onOpacitySet) {
+            this.onOpacitySet(opacity);
+        }
     },
 
     /**

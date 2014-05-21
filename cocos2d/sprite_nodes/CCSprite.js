@@ -1114,6 +1114,9 @@ cc.SpriteCanvas = cc.NodeRGBA.extend(/** @lends cc.SpriteCanvas# */{
     setOpacity:function (opacity) {
         this._opacity = opacity;
         this.setNodeDirty();
+        if ('function' === typeof this.onOpacitySet) {
+            this.onOpacitySet(opacity);
+        }
     },
 
     /**
@@ -2423,6 +2426,9 @@ cc.SpriteWebGL = cc.NodeRGBA.extend(/** @lends cc.SpriteWebGL# */{
         if (this._opacityModifyRGB)
             this.setColor(this._colorUnmodified);
         this.updateColor();
+        if ('function' === typeof this.onOpacitySet) {
+            this.onOpacitySet(opacity);
+        }
     },
 
     /**

@@ -3313,6 +3313,9 @@ cc.NodeRGBA = cc.Node.extend(/** @lends cc.NodeRGBA# */{
                 parentOpacity = this._parent.getDisplayedOpacity();
             this.updateDisplayedOpacity(parentOpacity);
         }
+        if ('function' === typeof this.onOpacitySet) {
+            this.onOpacitySet(opacity);
+        }
     },
 
     updateDisplayedOpacity:function(parentOpacity){

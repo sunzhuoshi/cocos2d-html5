@@ -102,6 +102,9 @@ cc.Control = cc.Layer.extend({
                 selNode.setOpacity(opacity);
             }
         }
+        if ('function' === typeof this.onOpacitySet) {
+            this.onOpacitySet(opacity);
+        }
     },
     getOpacity:function () {
         return this._opacity;

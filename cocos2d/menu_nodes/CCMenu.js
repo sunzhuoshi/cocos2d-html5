@@ -97,6 +97,9 @@ cc.Menu = cc.Layer.extend(/** @lends cc.Menu# */{
                 this._children[i].setOpacity(this._opacity);
             }
         }
+        if ('function' === typeof this.onOpacitySet) {
+            this.onOpacitySet(opacity);
+        }
     },
 
     _enabled:false,

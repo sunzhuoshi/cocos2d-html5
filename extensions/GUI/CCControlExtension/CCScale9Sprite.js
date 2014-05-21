@@ -186,6 +186,9 @@ cc.Scale9Sprite = cc.Node.extend(/** @lends cc.Scale9Sprite# */{
                 scaleChildren[i].setOpacity(this._opacity);
             }
         }
+        if ('function' === typeof this.onOpacitySet) {
+            this.onOpacitySet(opacity);
+        }
     },
 
     /** Color: conforms to CCRGBAProtocol protocol */

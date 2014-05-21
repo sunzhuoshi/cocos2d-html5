@@ -78,6 +78,9 @@ cc.MenuPassive = cc.Layer.extend({
                 }
             }
         }
+        if ('function' === typeof this.onOpacitySet) {
+            this.onOpacitySet(opacity);
+        }
     },
 
     /** initializes a CCMenu with it's items */

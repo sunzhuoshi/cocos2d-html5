@@ -279,6 +279,10 @@ cc.Repeat.create = function(action, times){};
 cc.RepeatForever = function(){};
 cc.RepeatForever.create = function(action){};
 
+cc.RGBAProtocol.prototype.getOpacity = function(){};
+cc.RGBAProtocol.prototype.setOpacity = function(opacity){};
+cc.RGBAProtocol.prototype.onOpacitySet = function(opacity){};
+
 cc.RotateBy = function(){};
 cc.RotateBy.create = function(duration, degres){};
 
@@ -318,7 +322,6 @@ cc.Sprite.prototype.setVisible = function(visible){};
 cc.Sprite.prototype.setTextureRect = function(texture, rect){};
 
 cc.SpriteBatchNode = function(){};
-cc.SpriteBatchNode.prototype.setOpacity = function(opacity){};
 
 cc.Scale9Sprite = function(){};
 cc.Scale9Sprite.prototype.getPreferredSize = function(){};
