@@ -152,6 +152,7 @@ cc.Texture2D = cc.Class.extend(/** @lends cc.Texture2D# */{
 
     /*public:*/
     ctor:function () {
+        this._contentSize = cc.SizeZero;
         this._pixelsWide = 0;
         this._pixelsWide = 0;
         this._name = "";
