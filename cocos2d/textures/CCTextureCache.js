@@ -83,11 +83,11 @@ cc.TextureCacheCanvas = cc.Class.extend(/** @lends cc.TextureCacheCanvas# */{
         this._textureColorsCache = {};
     },
 
-    _addImageAsyncCallBack:function (target, selector) {
+    _addImageAsyncCallBack:function (target, selector, texture) {
         if (target && (typeof(selector) == "string")) {
-            target[selector]();
-        } else if (target && (typeof(selector) == "function")) {
-            selector.call(target);
+            target[selector](texture);
+        } else if ('function' === typeof selector) {
+            selector.call(target, texture);
         }
     },
 
@@ -255,14 +255,14 @@ cc.TextureCacheCanvas = cc.Class.extend(/** @lends cc.TextureCacheCanvas# */{
         var texture = this._textures[path];
 
         if (texture) {
-            this._addImageAsyncCallBack(target, selector);
+            this._addImageAsyncCallBack(target, selector, texture);
         } else {
             texture = new Image();
             texture.crossOrigin = "Anonymous";
 
             var that = this;
             texture.addEventListener("load", function () {
-                that._addImageAsyncCallBack(target, selector);
+                that._addImageAsyncCallBack(target, selector, texture);
             });
             texture.addEventListener("error", function () {
                 cc.Loader.getInstance().onResLoadingErr(path);
@@ -420,11 +420,11 @@ cc.TextureCacheWebGL = cc.Class.extend({
         this._loadingTexturesBefore = {};
     },
 
-    _addImageAsyncCallBack:function (target, selector) {
+    _addImageAsyncCallBack:function (target, selector, texture) {
         if (target && (typeof(selector) == "string")) {
-            target[selector]();
-        } else if (target && (typeof(selector) == "function")) {
-            selector.call(target);
+            target[selector](texture);
+        } else if ('function' === typeof selector) {
+            selector.call(target, texture);
         }
     },
 
@@ -614,7 +614,7 @@ cc.TextureCacheWebGL = cc.Class.extend({
         var texture = this._textures[path];
 
         if (texture) {
-            this._addImageAsyncCallBack(target, selector);
+            this._addImageAsyncCallBack(target, selector, texture);
         } else {
             texture = new Image();
             texture.crossOrigin = "Anonymous";
@@ -623,7 +623,7 @@ cc.TextureCacheWebGL = cc.Class.extend({
             texture.addEventListener("load", function () {
                 if (that._textures.hasOwnProperty(path))
                     that._textures[path].handleLoadedTexture();
-                that._addImageAsyncCallBack(target, selector);
+                that._addImageAsyncCallBack(target, selector, texture);
             });
             texture.addEventListener("error", function () {
                 cc.Loader.getInstance().onResLoadingErr(path);
