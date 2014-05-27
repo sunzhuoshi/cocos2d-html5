@@ -62,12 +62,45 @@ cc.computeImageFormatType = function (filename) {
     return cc.FMT_UNKNOWN;
 };
 
+cc.TextureCacheBase = cc.Class.extend({
+    _asyncLoadCallbacks: null,
+    ctor: function() {
+        this._asyncLoadCallbacks = [];
+    },
+    pushAddImageAsyncCallback: function(path, target, selector) {
+        if (!this._asyncLoadCallbacks.hasOwnProperty(path)) {
+            this._asyncLoadCallbacks[path] = [];
+        }
+        this._asyncLoadCallbacks[path].push({
+            selector: selector,
+            target: target
+        });
+    },
+    doAddImageAsyncCallbacks: function(path, texture) {
+        var i, callbacks;
+        if (this._asyncLoadCallbacks.hasOwnProperty(path)) {
+            callbacks = this._asyncLoadCallbacks[path];
+            for (i=0; i<callbacks.length; ++i) {
+                this._addImageAsyncCallBack(callbacks[i].target, callbacks[i].selector, texture);
+            }
+            callbacks.length = 0;
+        }
+    },
+    _addImageAsyncCallBack:function (target, selector, texture) {
+        if (target && 'string' === typeof(selector)) {
+            target[selector](texture);
+        } else if ('function' === typeof selector) {
+            selector.call(target, texture);
+        }
+    }
+});
+
 /**
  *  Implementation TextureCache     (Canvas implement)
  * @class
  * @extends cc.Class
  */
-cc.TextureCacheCanvas = cc.Class.extend(/** @lends cc.TextureCacheCanvas# */{
+cc.TextureCacheCanvas = cc.TextureCacheBase.extend(/** @lends cc.TextureCacheCanvas# */{
     /// ---- common properties start ----
     _textures:null,
     _textureColorsCache:null,
@@ -78,17 +111,10 @@ cc.TextureCacheCanvas = cc.Class.extend(/** @lends cc.TextureCacheCanvas# */{
      */
     ctor:function () {
         cc.Assert(cc.g_sharedTextureCache == null, "Attempted to allocate a second instance of a singleton.");
+        this._super();
         this._textureKeySeq += (0 | Math.random() * 1000);
         this._textures = {};
         this._textureColorsCache = {};
-    },
-
-    _addImageAsyncCallBack:function (target, selector, texture) {
-        if (target && (typeof(selector) == "string")) {
-            target[selector](texture);
-        } else if ('function' === typeof selector) {
-            selector.call(target, texture);
-        }
     },
 
     /**
@@ -255,20 +281,28 @@ cc.TextureCacheCanvas = cc.Class.extend(/** @lends cc.TextureCacheCanvas# */{
         var texture = this._textures[path];
 
         if (texture) {
-            this._addImageAsyncCallBack(target, selector, texture);
+            if (texture.isLoaded) {
+                this._addImageAsyncCallBack(target, selector, texture);
+            }
+            else { // if not loaded, then it is in loading
+                this.pushAddImageAsyncCallback(path, target, selector);
+            }
         } else {
             texture = new Image();
             texture.crossOrigin = "Anonymous";
 
+            this.pushAddImageAsyncCallback(path, target, selector);
             var that = this;
             texture.addEventListener("load", function () {
-                that._addImageAsyncCallBack(target, selector, texture);
+                texture.isLoaded = true; // hack to judge if Image is loaded
+                that.doAddImageAsyncCallbacks(path, texture);
             });
             texture.addEventListener("error", function () {
                 cc.Loader.getInstance().onResLoadingErr(path);
                 //remove from cache
                 if (that._textures.hasOwnProperty(path))
                     delete that._textures[path];
+                that.doAddImageAsyncCallbacks(path, null);
             });
             texture.src = path;
             this._textures[path] = texture;
@@ -398,7 +432,7 @@ cc.TextureCacheCanvas.purgeSharedTextureCache = function () {
     cc.g_sharedTextureCache = null;
 };
 
-cc.TextureCacheWebGL = cc.Class.extend({
+cc.TextureCacheWebGL = cc.TextureCacheBase.extend({
     /// ---- common properties start ----
     _textures:null,
     _textureColorsCache:null,
@@ -413,19 +447,12 @@ cc.TextureCacheWebGL = cc.Class.extend({
      */
     ctor:function () {
         cc.Assert(cc.g_sharedTextureCache == null, "Attempted to allocate a second instance of a singleton.");
+        this._super();
         this._textureKeySeq += (0 | Math.random() * 1000);
         this._textures = {};
         this._textureColorsCache = {};
         this._loadedTexturesBefore = {};
         this._loadingTexturesBefore = {};
-    },
-
-    _addImageAsyncCallBack:function (target, selector, texture) {
-        if (target && (typeof(selector) == "string")) {
-            target[selector](texture);
-        } else if ('function' === typeof selector) {
-            selector.call(target, texture);
-        }
     },
 
     _initializingRenderer : function(){
@@ -614,27 +641,35 @@ cc.TextureCacheWebGL = cc.Class.extend({
         var texture = this._textures[path];
 
         if (texture) {
-            this._addImageAsyncCallBack(target, selector, texture);
+            if (texture.isLoaded()) {
+                this._addImageAsyncCallBack(target, selector, texture);
+            }
+            else { // if not loaded, then it is in loading
+                this.pushAddImageAsyncCallback(path, target, selector);
+            }
         } else {
             texture = new Image();
             texture.crossOrigin = "Anonymous";
+            texture.src = path;
+            var texture2d = new cc.Texture2D();
+            texture2d.initWithElement(texture);
+            this._textures[path] = texture2d;
+            this.pushAddImageAsyncCallback(path, target, selector);
 
             var that = this;
             texture.addEventListener("load", function () {
-                if (that._textures.hasOwnProperty(path))
+                if (that._textures.hasOwnProperty(path)) {
                     that._textures[path].handleLoadedTexture();
-                that._addImageAsyncCallBack(target, selector, texture);
+                }
+                that.doAddImageAsyncCallbacks(path, texture2d);
             });
             texture.addEventListener("error", function () {
                 cc.Loader.getInstance().onResLoadingErr(path);
                 //remove from cache
                 if (that._textures.hasOwnProperty(path))
                     delete that._textures[path];
+                that.doAddImageAsyncCallbacks(path, null);
             });
-            texture.src = path;
-            var texture2d = new cc.Texture2D();
-            texture2d.initWithElement(texture);
-            this._textures[path] = texture2d;
         }
         return this._textures[path];
     },
