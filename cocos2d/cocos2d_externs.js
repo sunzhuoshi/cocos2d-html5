@@ -318,6 +318,7 @@ cc.MoveTo.create = function(duration, position){};
 
 cc.Sprite = function(){};
 cc.Sprite.prototype.init = function(fileName){};
+cc.Sprite.prototype.initWithTexture = function(texture, rect, rotated){};
 cc.Sprite.prototype.setVisible = function(visible){};
 cc.Sprite.prototype.setTextureRect = function(texture, rect){};
 
@@ -327,6 +328,9 @@ cc.Scale9Sprite = function(){};
 cc.Scale9Sprite.prototype.getPreferredSize = function(){};
 cc.Scale9Sprite.prototype.setPreferredSize = function(size){};
 
+cc.Texture2D = function(){};
+
 cc.TextureCache = function(){};
 cc.TextureCache.getInstance = function(){};
 cc.TextureCache.prototype.addImage = function(image){};
+cc.TextureCache.prototype.addImageAsync = function(path, target, selector){};

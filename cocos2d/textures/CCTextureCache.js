@@ -87,7 +87,7 @@ cc.TextureCacheBase = cc.Class.extend({
         }
     },
     _addImageAsyncCallBack:function (target, selector, texture) {
-        if (target && 'string' === typeof(selector)) {
+        if (target && 'string' === typeof selector) {
             target[selector](texture);
         } else if ('function' === typeof selector) {
             selector.call(target, texture);
