@@ -1423,6 +1423,7 @@ cc.NodeWebGL = cc.Class.extend(/** @lends cc.NodeWebGL# */{
      * This is a hack, and should be removed once JSB fixes the retain/release bug
      */
     retain:function () {
+        return this;
     },
     release:function () {
     },
