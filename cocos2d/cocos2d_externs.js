@@ -88,9 +88,13 @@ cc.Assert = function(condition){};
 
 cc.AudioEngine = function(){};
 cc.AudioEngine.getInstance = function(){};
+cc.AudioEngine.prototype.getEffectsVolume = function(){};
+cc.AudioEngine.prototype.getMusicVolume = function(){};
 cc.AudioEngine.prototype.playEffect = function(effect, loop){};
 cc.AudioEngine.prototype.playMusic = function(music, loop){};
 cc.AudioEngine.prototype.stopMusic = function(music){};
+cc.AudioEngine.prototype.setMusicVolume = function(v){};
+cc.AudioEngine.prototype.setEffectsVolume = function(v){};
 
 cc.BezierTo = function(){};
 cc.BezierTo.create = function(duration, points){};
@@ -216,6 +220,7 @@ cc.Node.prototype.draw = function(){};
 cc.Node.prototype.getActionByTag = function(tag){};
 cc.Node.prototype.getAnchorPoint = function(){};
 cc.Node.prototype.getBoundingBox = function(){};
+cc.Node.prototype.getChildren = function(){};
 cc.Node.prototype.getContentSize = function(){};
 cc.Node.prototype.getPosition = function(){};
 cc.Node.prototype.getPositionX = function(){};
