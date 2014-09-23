@@ -339,3 +339,14 @@ cc.TextureCache = function(){};
 cc.TextureCache.getInstance = function(){};
 cc.TextureCache.prototype.addImage = function(image){};
 cc.TextureCache.prototype.addImageAsync = function(path, target, selector){};
+
+// pre-load resources definition
+var PreLoadResources = {
+    fontName: null,
+    src: [
+        {
+            src: null,
+            type: null
+        }
+    ]
+};
