@@ -35,7 +35,7 @@ cc.RESOURCE_TYPE = {
     "SOUND":["mp3", "ogg", "wav", "mp4", "m4a"],
     "XML":["plist", "xml", "fnt", "tmx", "tsx"],
     "BINARY":["ccbi"],
-    "FONT":"font",
+    "FONT":["font", "ttf"],
     "TEXT":["txt", "vsh", "fsh", "csv"],
     "UNKNOW":[]
 };
@@ -240,7 +240,7 @@ cc.Loader = cc.Class.extend(/** @lends cc.Loader# */{
     _getResType:function (resInfo) {
         var isFont = resInfo.fontName;
         if (isFont != null) {
-            return cc.RESOURCE_TYPE.FONT;
+            return 'FONT';
         } else {
             var src = resInfo.src;
             var ext = src.substring(src.lastIndexOf(".") + 1, src.length);
@@ -280,7 +280,8 @@ cc.Loader = cc.Class.extend(/** @lends cc.Loader# */{
     },
 
     _registerFaceFont:function (fontRes) {
-        var srcArr = cc.FileUtils.getInstance().fullPathForFilename(fontRes.src);
+        var srcArr = fontRes.src;
+        var fileUtils = cc.FileUtils.getInstance();
         if (srcArr && srcArr.length > 0) {
             var fontStyle = document.createElement("style");
             fontStyle.type = "text/css";
@@ -288,7 +289,7 @@ cc.Loader = cc.Class.extend(/** @lends cc.Loader# */{
 
             var fontStr = "@font-face { font-family:" + fontRes.fontName + "; src:";
             for (var i = 0; i < srcArr.length; i++) {
-                fontStr += "url('" + encodeURI(srcArr[i].src) + "') format('" + srcArr[i].type + "')";
+                fontStr += "url('" + fileUtils.fullPathForFilename(encodeURI(srcArr[i].src)) + "') format('" + srcArr[i].type + "')";
                 fontStr += (i == (srcArr.length - 1)) ? ";" : ",";
             }
             fontStyle.textContent += fontStr + "};";

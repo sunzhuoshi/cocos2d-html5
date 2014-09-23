@@ -176,7 +176,7 @@ cc.LabelTTFCanvas = cc.Sprite.extend(/** @lends cc.LabelTTFCanvas# */{
             hAlignment = cc.TEXT_ALIGNMENT_LEFT;
             vAlignment = cc.VERTICAL_TEXT_ALIGNMENT_BOTTOM;
         }
-
+        fontName = cc.LabelTTF._getFontFamilyName(fontName);
         if (cc.Sprite.prototype.init.call(this)) {
             this._opacityModifyRGB = false;
             this._dimensions = cc.size(dimensions.width, dimensions.height);
@@ -272,6 +272,7 @@ cc.LabelTTFCanvas = cc.Sprite.extend(/** @lends cc.LabelTTFCanvas# */{
      * @param {String} fontName
      */
     setFontName:function (fontName) {
+        fontName = cc.LabelTTF._getFontFamilyName(fontName);
         if (this._fontName != fontName) {
             this._fontName = new String(fontName);
             this._fontStyleStr = this._fontSize + "px '" + this._fontName + "'";
@@ -576,7 +577,7 @@ cc.LabelTTFWebGL = cc.Sprite.extend(/** @lends cc.LabelTTFWebGL# */{
             hAlignment = cc.TEXT_ALIGNMENT_LEFT;
             vAlignment = cc.VERTICAL_TEXT_ALIGNMENT_BOTTOM;
         }
-
+        fontName = cc.LabelTTF._getFontFamilyName(fontName);
         if (cc.Sprite.prototype.init.call(this)) {
             this._opacityModifyRGB = false;
             this._dimensions = cc.size(dimensions.width, dimensions.height);
@@ -669,6 +670,7 @@ cc.LabelTTFWebGL = cc.Sprite.extend(/** @lends cc.LabelTTFWebGL# */{
      * @param {String} fontName
      */
     setFontName:function (fontName) {
+        fontName = cc.LabelTTF._getFontFamilyName(fontName);
         if (this._fontName && this._fontName != fontName) {
             this._fontName = fontName;
             this._fontStyleStr = this._fontSize + "px '" + fontName + "'";
@@ -914,6 +916,16 @@ cc.LabelTTF.__getFontHeightByDiv = function(fontName, fontSize){
     labelDiv.style.fontFamily = fontName;
     labelDiv.style.fontSize = fontSize + "px";
     return labelDiv.clientHeight ;
+};
+
+// get font family name from font name and customized font name in CCB(e.g. Font/test.ttf)
+cc.LabelTTF._getFontFamilyName = function(fontName) {
+    var extIndex = fontName.lastIndexOf('.'),
+        dashIndex = fontName.lastIndexOf('/');
+    if (-1 === extIndex) {
+        extIndex = fontName.length;
+    }
+    return fontName.substring(dashIndex+1, extIndex);
 };
 
 
