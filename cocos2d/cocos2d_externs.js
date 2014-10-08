@@ -211,6 +211,7 @@ cc.MenuItem.prototype.setNormalImage = function(normalImage){};
 
 cc.Node = function(){};
 cc.Node.create = function(){};
+cc.Node.prototype.__outerNode; // the outer node of  sub CCB(HACK to fix sub CCB animation not work)
 cc.Node.prototype.addChild = function(child, zOrder, tag){};
 cc.Node.prototype.controller; // controller for CCBI
 cc.Node.prototype.convertToNodeSpace = function(position){};
@@ -266,6 +267,16 @@ cc.ParticleSystem.prototype.getLifeVar = function(){};
 cc.ParticleSystemQuad = function(){};
 cc.ParticleSystemQuad.create = function(){};
 cc.ParticleSystemQuad.prototype.initWithFile = function(fileName){};
+
+cc.Rect = function(x, y, width, height){};
+cc.Rect.prototype.getX = function() {};
+cc.Rect.prototype.setX = function(x) {};
+cc.Rect.prototype.getY = function() {};
+cc.Rect.prototype.setY = function(y) {};
+cc.Rect.prototype.getWidth = function() {};
+cc.Rect.prototype.setWidth = function(w) {};
+cc.Rect.prototype.getHeight = function() {};
+cc.Rect.prototype.setHeight = function(h){};
 
 cc.p = function(x, y){};
 cc.pAdd = function(p1, p2){};

@@ -779,9 +779,6 @@ cc.BuilderReader = cc.Class.extend({
             seqs.setObject(seqNodeProps, seqId);
         }
 
-        if (seqs.count() > 0)
-            this._actionManager.addNode(node, seqs);
-
         //read properties
         ccNodeLoader.parseProperties(node, parent, this);
 
@@ -795,9 +792,15 @@ cc.BuilderReader = cc.Class.extend({
             embeddedNode.setVisible(true);
             embeddedNode.ignoreAnchorPointForPosition(node.isIgnoreAnchorPointForPosition());
 
+            // HACK to fix sub CCB animation not work issue
+            embeddedNode.__outerNode = node;
+
             node.setCCBFileNode(null);
             node = embeddedNode;
         }
+        // NOTE: must be after node re-assignment
+        if (seqs.count() > 0)
+            this._actionManager.addNode(node, seqs);
 
         if (memberVarAssignmentType != CCB_TARGETTYPE_NONE) {
             if (!this._jsControlled) {

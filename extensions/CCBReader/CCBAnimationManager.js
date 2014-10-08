@@ -378,7 +378,12 @@ cc.BuilderAnimationManager = cc.Class.extend({
     },
 
     _getBaseValue:function (node, propName) {
-        var props = this._baseValues.objectForKey(node);
+        var props;
+        // HACK to fix sub CCB animation not work issue
+        if ('undefined' != typeof node.__outerNode) {
+            node = node.__outerNode;
+        }
+        props = this._baseValues.objectForKey(node);
         if (props)
             return props.objectForKey(propName);
         return null;
