@@ -331,15 +331,18 @@ cc.LabelTTFCanvas = cc.Sprite.extend(/** @lends cc.LabelTTFCanvas# */{
 
         // we will need to change contentSize to cater this
         //if dimension is not set, set contentSize according to actual size
+        // NOTE: set content size base font size(used in draw) instead of font client height(larger)
         if (locDimensionsWidth === 0) {
             if (this._isMultiLine)
-                this.setContentSize(cc.size(Math.max.apply(Math, this._lineWidths), this._fontClientHeight * this._strings.length));
+                this.setContentSize(cc.size(Math.max.apply(Math, this._lineWidths), this._fontSize * this._strings.length));
             else
                 this.setContentSize(cc.size(stringWidth, this._fontClientHeight));
             this._anchorPointInPoints.x = this._contentSize.width * this._anchorPoint.x ;
             this._anchorPointInPoints.y = this._contentSize.height * this._anchorPoint.y;
         } else {
-            //dimension is already set, contentSize must be same as dimension
+            if (0 === this._dimensions.height) {
+                this._dimensions.height = this._fontSize * this._strings.length;
+            }
             this.setContentSize(cc.size(locDimensionsWidth, this._dimensions.height));
             this._anchorPointInPoints.x = this._contentSize.width * this._anchorPoint.x;
             this._anchorPointInPoints.y = this._contentSize.height * this._anchorPoint.y;
@@ -778,13 +781,16 @@ cc.LabelTTFWebGL = cc.Sprite.extend(/** @lends cc.LabelTTFWebGL# */{
         } else
             this._isMultiLine = false;
 
+        // NOTE: set content size base font size(used in draw) instead of font client height(larger)
         if (locDimensionsWidth === 0) {
             if (this._isMultiLine)
-                this.setContentSize(cc.size(Math.max.apply(Math, this._lineWidths), this._fontClientHeight * this._strings.length));
+                this.setContentSize(cc.size(Math.max.apply(Math, this._lineWidths), this._fontSize * this._strings.length));
             else
                 this.setContentSize(cc.size(stringWidth, this._fontClientHeight));
         } else {
-            //dimension is already set, contentSize must be same as dimension
+            if (0 === this._dimensions.height) {
+                this._dimensions.height = this._fontSize * this._strings.length;
+            }
             this.setContentSize(cc.size(locDimensionsWidth, this._dimensions.height));
         }
         this._anchorPointInPoints.x = this._contentSize.width * this._anchorPoint.x;

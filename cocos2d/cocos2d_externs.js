@@ -188,6 +188,7 @@ cc.LabelBMFont.prototype.setString = function(text){};
 
 cc.LabelTTF = function(){};
 cc.LabelTTF.create = function(){};
+cc.LabelTTF.prototype.getAdjustsFontSizeToFitWidth = function() {};
 cc.LabelTTF.prototype.setDimensions = function(size){};
 cc.LabelTTF.prototype.setFontSize = function(size){};
 cc.LabelTTF.prototype.setHorizontalAlignment = function(alignment){};
