@@ -225,7 +225,9 @@ cc.DOM.methods = /** @lends cc.DOM# */{
      */
     setParent:function (p) {
         this._parent = p;
-        p.setAnchorPoint(p.getAnchorPoint());
+        if (p) {
+            p.setAnchorPoint(p.getAnchorPoint());
+        }
         this.setNodeDirty();
         cc.DOM.parentDOM(this);
     },
