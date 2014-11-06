@@ -789,7 +789,7 @@ cc.BuilderReader = cc.Class.extend({
             embeddedNode.setRotation(node.getRotation());
             embeddedNode.setScale(node.getScale());
             embeddedNode.setTag(node.getTag());
-            embeddedNode.setVisible(true);
+            embeddedNode.setVisible(node.isVisible());
             embeddedNode.ignoreAnchorPointForPosition(node.isIgnoreAnchorPointForPosition());
 
             // HACK to fix sub CCB animation not work issue
