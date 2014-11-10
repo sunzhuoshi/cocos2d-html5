@@ -158,6 +158,7 @@ cc.Scale9Sprite = cc.Node.extend(/** @lends cc.Scale9Sprite# */{
         this._color = cc.white();
         this._opacity = 255;
         this._capInsets = cc.RectZero();
+        this.setAnchorPoint(cc.p(0.5, 0.5));
     },
 
     /** Original sprite's size. */
@@ -307,7 +308,6 @@ cc.Scale9Sprite = cc.Node.extend(/** @lends cc.Scale9Sprite# */{
         if (batchNode) {
             this.updateWithBatchNode(batchNode, rect, rotated, capInsets);
         }
-        this.setAnchorPoint(cc.p(0.5, 0.5));
         this.m_positionsAreDirty = true;
         return true;
     },

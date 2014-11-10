@@ -862,6 +862,9 @@ cc.SpriteCanvas = cc.NodeRGBA.extend(/** @lends cc.SpriteCanvas# */{
         this._color = cc.white();
         this._blendFunc = {src:cc.BLEND_SRC, dst:cc.BLEND_DST};
 
+        // default transform anchor: center
+        this.setAnchorPoint(cc.p(0.5, 0.5));
+
         if (fileName) {
             if (typeof(fileName) == "string") {
                 var frame = cc.SpriteFrameCache.getInstance().getSpriteFrame(fileName);
@@ -916,9 +919,6 @@ cc.SpriteCanvas = cc.NodeRGBA.extend(/** @lends cc.SpriteCanvas# */{
         // update texture (calls _updateBlendFunc)
         this.setTexture(null);
         this._flipX = this._flipY = false;
-
-        // default transform anchor: center
-        this.setAnchorPoint(cc.p(0.5, 0.5));
 
         // zwoptex default values
         this._offsetPosition = cc.PointZero();
@@ -1004,9 +1004,6 @@ cc.SpriteCanvas = cc.NodeRGBA.extend(/** @lends cc.SpriteCanvas# */{
         this._blendFunc.dst = cc.BLEND_DST;
 
         this._flipX = this._flipY = false;
-
-        // default transform anchor: center
-        this.setAnchorPoint(cc.p(0.5, 0.5));
 
         // zwoptex default values
         this._offsetPosition = cc.p(0, 0);
@@ -2039,6 +2036,9 @@ cc.SpriteWebGL = cc.NodeRGBA.extend(/** @lends cc.SpriteWebGL# */{
         this._quadWebBuffer = cc.renderContext.createBuffer();
         this._quadDirty = true;
 
+        // default transform anchor: center
+        this.setAnchorPoint(cc.p(0.5, 0.5));
+
         if (fileName) {
             if (typeof(fileName) == "string") {
                 var frame = cc.SpriteFrameCache.getInstance().getSpriteFrame(fileName);
@@ -2107,9 +2107,6 @@ cc.SpriteWebGL = cc.NodeRGBA.extend(/** @lends cc.SpriteWebGL# */{
         this.setTexture(null);
 
         this._flipX = this._flipY = false;
-
-        // default transform anchor: center
-        this.setAnchorPoint(cc.p(0.5, 0.5));
 
         // zwoptex default values
         this._offsetPosition = cc.PointZero();
@@ -2205,9 +2202,6 @@ cc.SpriteWebGL = cc.NodeRGBA.extend(/** @lends cc.SpriteWebGL# */{
         this._blendFunc.dst = cc.BLEND_DST;
 
         this._flipX = this._flipY = false;
-
-        // default transform anchor: center
-        this.setAnchorPoint(cc.p(0.5, 0.5));
 
         // zwoptex default values
         this._offsetPosition = cc.p(0, 0);
