@@ -610,20 +610,19 @@ cc.BuilderAnimationManager = cc.Class.extend({
     },
 
     _sequenceCompleted:function () {
+        var nextSeqId = this._runningSequence.getChainedSequenceId();
         if(this._lastCompletedSequenceName != this._runningSequence.getName()){
             this._lastCompletedSequenceName = this._runningSequence.getName();
         }
-
+        this._runningSequence = null;
+        // for runAnimation(_runningSequence set) maybe called in callback, _runningSequence MUST be set null before callback
+        // it also is true in logic, for no sequence is running now
         if (this._delegate)
-            this._delegate.completedAnimationSequenceNamed(this._runningSequence.getName());
+            this._delegate.completedAnimationSequenceNamed(this._lastCompletedSequenceName);
 
         if(this._target && this._animationCompleteCallbackFunc){
-            this._animationCompleteCallbackFunc.call(this._target, this._rootNode, this._runningSequence.getName());
+            this._animationCompleteCallbackFunc.call(this._target, this._rootNode, this._lastCompletedSequenceName);
         }
-
-        var nextSeqId = this._runningSequence.getChainedSequenceId();
-        this._runningSequence = null;
-
         if (nextSeqId != -1)
             this.runAnimations(nextSeqId, 0);
     }
