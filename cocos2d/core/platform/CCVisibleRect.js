@@ -1,7 +1,6 @@
 /****************************************************************************
- Copyright (c) 2010-2012 cocos2d-x.org
- Copyright (c) 2008-2010 Ricardo Quesada
- Copyright (c) 2011      Zynga Inc.
+ Copyright (c) 2011-2012 cocos2d-x.org
+ Copyright (c) 2013-2014 Chukong Technologies Inc.
 
  http://www.cocos2d-x.org
 
@@ -26,81 +25,76 @@
  ****************************************************************************/
 
 /**
+ * cc.visibleRect is a singleton object which defines the actual visible rect of the current view,
+ * it should represent the same rect as cc.view.getViewportRect()
  *
- * @type Object
+ * @property {cc.Point}     topLeft         - Top left coordinate of the screen related to the game scene
+ * @property {cc.Point}     topRight        - Top right coordinate of the screen related to the game scene
+ * @property {cc.Point}     top             - Top center coordinate of the screen related to the game scene
+ * @property {cc.Point}     bottomLeft      - Bottom left coordinate of the screen related to the game scene
+ * @property {cc.Point}     bottomRight     - Bottom right coordinate of the screen related to the game scene
+ * @property {cc.Point}     bottom          - Bottom center coordinate of the screen related to the game scene
+ * @property {cc.Point}     center          - Center coordinate of the screen related to the game scene
+ * @property {cc.Point}     left            - Left center coordinate of the screen related to the game scene
+ * @property {cc.Point}     right           - Right center coordinate of the screen related to the game scene
+ * @property {Number}       width           - Width of the screen
+ * @property {Number}       height          - Height of the screen
+ *
+ * @class
+ * @name cc.visibleRect
  */
-cc.VisibleRect = {
-    _topLeft:cc._pConst(0,0),
-    _topRight:cc._pConst(0,0),
-    _top:cc._pConst(0,0),
-    _bottomLeft:cc._pConst(0,0),
-    _bottomRight:cc._pConst(0,0),
-    _bottom:cc._pConst(0,0),
-    _center:cc._pConst(0,0),
-    _left:cc._pConst(0,0),
-    _right:cc._pConst(0,0),
-    _width:0,
-    _height:0,
-    init:function(size){
-        this._width = size.width;
-        this._height = size.height;
+cc.visibleRect = {
+    topLeft:cc.p(0,0),
+    topRight:cc.p(0,0),
+    top:cc.p(0,0),
+    bottomLeft:cc.p(0,0),
+    bottomRight:cc.p(0,0),
+    bottom:cc.p(0,0),
+    center:cc.p(0,0),
+    left:cc.p(0,0),
+    right:cc.p(0,0),
+    width:0,
+    height:0,
 
-        var w = this._width;
-        var h = this._height;
+    /**
+     * initialize
+     * @param {cc.Rect} visibleRect
+     */
+    init:function(visibleRect){
+
+        var w = this.width = visibleRect.width;
+        var h = this.height = visibleRect.height;
+        var l = visibleRect.x,
+            b = visibleRect.y,
+            t = b + h,
+            r = l + w;
 
         //top
-        this._topLeft._y = h;
-        this._topRight._x = w;
-        this._topRight._y = h;
-        this._top._x = w/2;
-        this._top._y = h;
+        this.topLeft.x = l;
+        this.topLeft.y = t;
+        this.topRight.x = r;
+        this.topRight.y = t;
+        this.top.x = l + w/2;
+        this.top.y = t;
 
         //bottom
-        this._bottomRight._x = w;
-        this._bottom._x = w/2;
+        this.bottomLeft.x = l;
+        this.bottomLeft.y = b;
+        this.bottomRight.x = r;
+        this.bottomRight.y = b;
+        this.bottom.x = l + w/2;
+        this.bottom.y = b;
 
         //center
-        this._center._x = w/2;
-        this._center._y = h/2;
+        this.center.x = l + w/2;
+        this.center.y = b + h/2;
 
         //left
-        this._left._y = h/2;
+        this.left.x = l;
+        this.left.y = b + h/2;
 
         //right
-        this._right._x = w;
-        this._right._y = h/2;
-    },
-    getWidth:function(){
-        return this._width;
-    },
-    getHeight:function(){
-        return this._height;
-    },
-    topLeft:function(){
-        return this._topLeft;
-    },
-    topRight:function(){
-        return this._topRight;
-    },
-    top:function(){
-        return this._top;
-    },
-    bottomLeft:function(){
-        return this._bottomLeft;
-    },
-    bottomRight:function(){
-        return this._bottomRight;
-    },
-    bottom:function(){
-        return this._bottom;
-    },
-    center:function(){
-        return this._center;
-    },
-    left:function(){
-        return this._left;
-    },
-    right:function(){
-        return this._right;
+        this.right.x = r;
+        this.right.y = b + h/2;
     }
 };

@@ -1,7 +1,7 @@
 /****************************************************************************
- Copyright (c) 2010-2012 cocos2d-x.org
  Copyright (c) 2008-2010 Ricardo Quesada
- Copyright (c) 2011      Zynga Inc.
+ Copyright (c) 2011-2012 cocos2d-x.org
+ Copyright (c) 2013-2014 Chukong Technologies Inc.
 
  http://www.cocos2d-x.org
 
@@ -24,49 +24,8 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-/**
- * copy an new object
- * @function
- * @param {object|Array} obj source object
- * @return {Array|object}
- */
-cc.clone = function (obj) {
-    // Cloning is better if the new object is having the same prototype chain
-    // as the copied obj (or otherwise, the cloned object is certainly going to
-    // have a different hidden class). Play with C1/C2 of the
-    // PerformanceVirtualMachineTests suite to see how this makes an impact
-    // under extreme conditions.
-    //
-    // Object.create(Object.getPrototypeOf(obj)) doesn't work well because the
-    // prototype lacks a link to the constructor (Carakan, V8) so the new
-    // object wouldn't have the hidden class that's associated with the
-    // constructor (also, for whatever reasons, utilizing
-    // Object.create(Object.getPrototypeOf(obj)) + Object.defineProperty is even
-    // slower than the original in V8). Therefore, we call the constructor, but
-    // there is a big caveat - it is possible that the this.init() in the
-    // constructor would throw with no argument. It is also possible that a
-    // derived class forgets to set "constructor" on the prototype. We ignore
-    // these possibities for and the ultimate solution is a standardized
-    // Object.clone(<object>).
-    var newObj = (obj.constructor) ? new obj.constructor : {};
-
-        // Assuming that the constuctor above initialized all properies on obj, the
-    // following keyed assignments won't turn newObj into dictionary mode
-    // becasue they're not *appending new properties* but *assigning existing
-    // ones* (note that appending indexed properties is another story). See
-    // CCClass.js for a link to the devils when the assumption fails.
-    for (var key in obj) {
-        var copy = obj[key];
-        // Beware that typeof null == "object" !
-        if (((typeof copy) == "object") && copy &&
-            !(copy instanceof cc.Node) && !(copy instanceof HTMLElement)) {
-            newObj[key] = cc.clone(copy);
-        } else {
-            newObj[key] = copy;
-        }
-    }
-    return newObj;
-};
+var cc = cc || {};
+cc._tmp = cc._tmp || {};
 
 /**
  * Function added for JS bindings compatibility. Not needed in cocos2d-html5.
@@ -78,256 +37,40 @@ cc.associateWithNative = function (jsObj, superclass) {
 };
 
 /**
- * Is show bebug info on web page
+ * Key map for keyboard event
+ *
  * @constant
- * @type {Boolean}
- */
-cc.IS_SHOW_DEBUG_ON_PAGE = cc.IS_SHOW_DEBUG_ON_PAGE || false;
-
-cc._logToWebPage = function (message) {
-    var logList = document.getElementById("logInfoList");
-    if (!logList) {
-        var logDiv = document.createElement("Div");
-        logDiv.setAttribute("id", "logInfoDiv");
-        cc.canvas.parentNode.appendChild(logDiv);
-        logDiv.setAttribute("width", "200");
-        logDiv.setAttribute("height", cc.canvas.height);
-        logDiv.style.zIndex = "99999";
-        logDiv.style.position = "absolute";
-        logDiv.style.top = "0";
-        logDiv.style.left = "0";
-
-        logList = document.createElement("ul");
-        logDiv.appendChild(logList);
-        logList.setAttribute("id", "logInfoList");
-        logList.style.height = cc.canvas.height + "px";
-        logList.style.color = "#fff";
-        logList.style.textAlign = "left";
-        logList.style.listStyle = "disc outside";
-        logList.style.fontSize = "12px";
-        logList.style.fontFamily = "arial";
-        logList.style.padding = "0 0 0 20px";
-        logList.style.margin = "0";
-        logList.style.textShadow = "0 0 3px #000";
-        logList.style.zIndex = "99998";
-        logList.style.position = "absolute";
-        logList.style.top = "0";
-        logList.style.left = "0";
-        logList.style.overflowY = "hidden";
-
-        var tempDiv = document.createElement("Div");
-        logDiv.appendChild(tempDiv);
-        tempDiv.style.width = "200px";
-        tempDiv.style.height = cc.canvas.height + "px";
-        tempDiv.style.opacity = "0.1";
-        tempDiv.style.background = "#fff";
-        tempDiv.style.border = "1px solid #dfdfdf";
-        tempDiv.style.borderRadius = "8px";
-    }
-    var addMessage = document.createElement("li");
-    //var now = new Date();
-    //addMessage.innerHTML = now.getHours() + ":" + now.getMinutes() + ":" + now.getSeconds() + " " + now.getMilliseconds() + " " + message;
-    addMessage.innerHTML = message;
-    if (logList.childNodes.length == 0) {
-        logList.appendChild(addMessage);
-    } else {
-        logList.insertBefore(addMessage, logList.childNodes[0]);
-    }
-};
-
-/**
- * Output Debug message.
- * @function
- * @param {String} message
- */
-cc.log = function (message) {
-    if (!cc.IS_SHOW_DEBUG_ON_PAGE) {
-        console.log.apply(console, arguments);
-    } else {
-        cc._logToWebPage(message);
-    }
-};
-
-/**
- * Pop out a message box
- * @param {String} message
- * @function
- */
-cc.MessageBox = function (message) {
-    console.log(message);
-};
-
-/**
- * Output Assert message.
- * @function
- * @param {Boolean} cond If cond is false, assert.
- * @param {String} message
- */
-cc.Assert = function (cond, message) {
-    if (console.assert)
-        console.assert(cond, message);
-    else {
-        if (!cond) {
-            if (message)
-                alert(message);
-        }
-    }
-};
-
-/**
- * Update Debug setting.
- * @function
- */
-cc.initDebugSetting = function () {
-    // cocos2d debug
-    if (cc.COCOS2D_DEBUG == 0) {
-        cc.log = function () {
-        };
-        cc.logINFO = function () {
-        };
-        cc.logERROR = function () {
-        };
-        cc.Assert = function () {
-        };
-    } else if (cc.COCOS2D_DEBUG == 1) {
-        cc.logINFO = cc.log;
-        cc.logERROR = function () {
-        };
-    } else if (cc.COCOS2D_DEBUG > 1) {
-        cc.logINFO = cc.log;
-        cc.logERROR = cc.log;
-    }// COCOS2D_DEBUG
-};
-
-// Enum the language type supportted now
-/**
- * English language code
- * @constant
- * @type Number
- */
-cc.LANGUAGE_ENGLISH = 0;
-
-/**
- * Chinese language code
- * @constant
- * @type Number
- */
-cc.LANGUAGE_CHINESE = 1;
-
-/**
- * French language code
- * @constant
- * @type Number
- */
-cc.LANGUAGE_FRENCH = 2;
-
-/**
- * Italian language code
- * @constant
- * @type Number
- */
-cc.LANGUAGE_ITALIAN = 3;
-
-/**
- * German language code
- * @constant
- * @type Number
- */
-cc.LANGUAGE_GERMAN = 4;
-
-/**
- * Spanish language code
- * @constant
- * @type Number
- */
-cc.LANGUAGE_SPANISH = 5;
-
-/**
- * Russian language code
- * @constant
- * @type Number
- */
-cc.LANGUAGE_RUSSIAN = 6;
-
-/**
- * Korean language code
- * @constant
- * @type Number
- */
-cc.LANGUAGE_KOREAN = 7;
-
-/**
- * Japanese language code
- * @constant
- * @type Number
- */
-cc.LANGUAGE_JAPANESE = 8;
-
-/**
- * Hungarian language code
- * @constant
- * @type Number
- */
-cc.LANGUAGE_HUNGARIAN = 9;
-
-/**
- * Portuguese language code
- * @constant
- * @type Number
- */
-cc.LANGUAGE_PORTUGUESE = 10;
-
-/**
- * Arabic language code
- * @constant
- * @type Number
- */
-cc.LANGUAGE_ARABIC = 11;
-
-/**
- * Norwegian language code
- * @constant
- * @type Number
- */
-cc.LANGUAGE_NORWEGIAN = 12;
-
-/**
- * Polish language code
- * @constant
- * @type Number
- */
-cc.LANGUAGE_POLISH = 13;
-
-/**
- * keymap
+ * @type {Object}
  * @example
- * //Example
- * //to mark a keydown
- * cc.keyDown[65] = true;
- * //or
- * cc.keyMap[cc.KEY.a]
- *
- * //to mark a keyup
- * do cc.keyDown[65] = false;
- *
- * //to find out if a key is down, check
- * if(cc.keyDown[65])
- * //or
- * if,(cc.keyDown[cc.KEY.space])
- * //if its undefined or false or null, its not pressed
- * @constant
- * @type object
+    cc.eventManager.addListener({
+        event: cc.EventListener.KEYBOARD,
+        onKeyPressed:  function(keyCode, event){
+            if (cc.KEY["a"] == keyCode) {
+                cc.log("A is pressed");
+            }
+        }
+    }, this);
  */
 cc.KEY = {
+    none:0,
+
+    // android
+    back:6,
+    menu:18,
+
     backspace:8,
     tab:9,
+
     enter:13,
+
     shift:16, //should use shiftkey instead
     ctrl:17, //should use ctrlkey
     alt:18, //should use altkey
     pause:19,
     capslock:20,
+
     escape:27,
+    space:32,
     pageup:33,
     pagedown:34,
     end:35,
@@ -336,6 +79,8 @@ cc.KEY = {
     up:38,
     right:39,
     down:40,
+    select:41,
+
     insert:45,
     Delete:46,
     0:48,
@@ -374,6 +119,7 @@ cc.KEY = {
     x:88,
     y:89,
     z:90,
+
     num0:96,
     num1:97,
     num2:98,
@@ -401,13 +147,15 @@ cc.KEY = {
     f10:121,
     f11:122,
     f12:123,
+
     numlock:144,
     scrolllock:145,
+
+    ';':186,
     semicolon:186,
-    ',':186,
     equal:187,
     '=':187,
-    ';':188,
+    ',':188,
     comma:188,
     dash:189,
     '.':190,
@@ -416,9 +164,140 @@ cc.KEY = {
     grave:192,
     '[':219,
     openbracket:219,
+    backslash:220,
     ']':221,
     closebracket:221,
-    backslash:220,
     quote:222,
-    space:32
+
+    // gamepad controll
+    dpadLeft:1000,
+    dpadRight:1001,
+    dpadUp:1003,
+    dpadDown:1004,
+    dpadCenter:1005
+};
+
+/**
+ * Image Format:JPG
+ * @constant
+ * @type {Number}
+ */
+cc.FMT_JPG = 0;
+
+/**
+ * Image Format:PNG
+ * @constant
+ * @type {Number}
+ */
+cc.FMT_PNG = 1;
+
+/**
+ * Image Format:TIFF
+ * @constant
+ * @type {Number}
+ */
+cc.FMT_TIFF = 2;
+
+/**
+ * Image Format:RAWDATA
+ * @constant
+ * @type {Number}
+ */
+cc.FMT_RAWDATA = 3;
+
+/**
+ * Image Format:WEBP
+ * @constant
+ * @type {Number}
+ */
+cc.FMT_WEBP = 4;
+
+/**
+ * Image Format:UNKNOWN
+ * @constant
+ * @type {Number}
+ */
+cc.FMT_UNKNOWN = 5;
+
+/**
+ * get image format by image data
+ * @function
+ * @param {Array} imgData
+ * @returns {Number}
+ */
+cc.getImageFormatByData = function (imgData) {
+	// if it is a png file buffer.
+    if (imgData.length > 8 && imgData[0] === 0x89
+        && imgData[1] === 0x50
+        && imgData[2] === 0x4E
+        && imgData[3] === 0x47
+        && imgData[4] === 0x0D
+        && imgData[5] === 0x0A
+        && imgData[6] === 0x1A
+        && imgData[7] === 0x0A) {
+        return cc.FMT_PNG;
+    }
+
+	// if it is a tiff file buffer.
+    if (imgData.length > 2 && ((imgData[0] === 0x49 && imgData[1] === 0x49)
+        || (imgData[0] === 0x4d && imgData[1] === 0x4d)
+        || (imgData[0] === 0xff && imgData[1] === 0xd8))) {
+        return cc.FMT_TIFF;
+    }
+	return cc.FMT_UNKNOWN;
+};
+
+/**
+ * Another way to subclass: Using Google Closure.
+ * The following code was copied + pasted from goog.base / goog.inherits
+ * @function
+ * @param {Function} childCtor
+ * @param {Function} parentCtor
+ */
+cc.inherits = function (childCtor, parentCtor) {
+    function tempCtor() {}
+    tempCtor.prototype = parentCtor.prototype;
+    childCtor.superClass_ = parentCtor.prototype;
+    childCtor.prototype = new tempCtor();
+    childCtor.prototype.constructor = childCtor;
+
+    // Copy "static" method, but doesn't generate subclasses.
+// for( var i in parentCtor ) {
+// childCtor[ i ] = parentCtor[ i ];
+// }
+};
+
+/**
+ * @deprecated since v3.0, please use cc.Class.extend and _super
+ * @cc.Class.extend
+ */
+cc.base = function(me, opt_methodName, var_args) {
+    var caller = arguments.callee.caller;
+    if (caller.superClass_) {
+        // This is a constructor. Call the superclass constructor.
+        ret = caller.superClass_.constructor.apply( me, Array.prototype.slice.call(arguments, 1));
+        return ret;
+    }
+
+    var args = Array.prototype.slice.call(arguments, 2);
+    var foundCaller = false;
+    for (var ctor = me.constructor; ctor; ctor = ctor.superClass_ && ctor.superClass_.constructor) {
+        if (ctor.prototype[opt_methodName] === caller) {
+            foundCaller = true;
+        } else if (foundCaller) {
+            return ctor.prototype[opt_methodName].apply(me, args);
+        }
+    }
+
+    // If we did not find the caller in the prototype chain,
+    // then one of two things happened:
+    // 1) The caller is an instance method.
+    // 2) This method was not called by the right caller.
+    if (me[opt_methodName] === caller) {
+        return me.constructor.prototype[opt_methodName].apply(me, args);
+    } else {
+        throw Error(
+            'cc.base called from a method of one name ' +
+                'to a method of a different name');
+    }
 };

@@ -1,7 +1,7 @@
 /****************************************************************************
- Copyright (c) 2010-2012 cocos2d-x.org
  Copyright (c) 2008-2010 Ricardo Quesada
- Copyright (c) 2011      Zynga Inc.
+ Copyright (c) 2011-2012 cocos2d-x.org
+ Copyright (c) 2013-2014 Chukong Technologies Inc.
 
  http://www.cocos2d-x.org
 
@@ -25,13 +25,14 @@
  ****************************************************************************/
 
 /**
- * Instant actions are immediate actions. They don't have a duration like
+ * Instant actions are immediate actions. They don't have a duration like.
  * the CCIntervalAction actions.
  * @class
  * @extends cc.FiniteTimeAction
  */
 cc.ActionInstant = cc.FiniteTimeAction.extend(/** @lends cc.ActionInstant# */{
     /**
+     * return true if the action has finished.
      * @return {Boolean}
      */
     isDone:function () {
@@ -39,6 +40,8 @@ cc.ActionInstant = cc.FiniteTimeAction.extend(/** @lends cc.ActionInstant# */{
     },
 
     /**
+     * called every frame with it's delta time. <br />
+     * DON'T override unless you know what you are doing.
      * @param {Number} dt
      */
     step:function (dt) {
@@ -46,191 +49,356 @@ cc.ActionInstant = cc.FiniteTimeAction.extend(/** @lends cc.ActionInstant# */{
     },
 
     /**
-     * @param {Number} time
+     * Called once per frame. Time is the number of seconds of a frame interval.
+     *
+     * @param {Number} dt
      */
-    update:function (time) {
+    update:function (dt) {
         //nothing
     },
 
+    /**
+     * returns a reversed action. <br />
+     * For example: <br />
+     * - The action will be x coordinates of 0 move to 100. <br />
+     * - The reversed action will be x of 100 move to 0.
+     * - Will be rewritten
+     * @returns {cc.Action}
+     */
     reverse:function(){
         return this.clone();
     },
 
+    /**
+     * to copy object with deep copy.
+     * returns a clone of action.
+     *
+     * @return {cc.FiniteTimeAction}
+     */
     clone:function(){
         return new cc.ActionInstant();
     }
 });
 
-/**  Show the node
+/**
+ * Show the node.
  * @class
  * @extends cc.ActionInstant
  */
 cc.Show = cc.ActionInstant.extend(/** @lends cc.Show# */{
+
     /**
-     * @param {Number} time
+     * Called once per frame. Time is the number of seconds of a frame interval.
+     *
+     * @param {Number} dt
      */
-    update:function (time) {
-        this._target.setVisible(true);
+    update:function (dt) {
+        this.target.visible = true;
     },
 
     /**
-     * @return {cc.FiniteTimeAction}
+     * returns a reversed action. <br />
+     * For example: <br />
+     * - The action will be x coordinates of 0 move to 100. <br />
+     * - The reversed action will be x of 100 move to 0.
+     * - Will be rewritten
+     * @returns {cc.Hide}
      */
     reverse:function () {
-        return cc.Hide.create();
+        return new cc.Hide();
     },
 
+    /**
+     * to copy object with deep copy.
+     * returns a clone of action.
+     *
+     * @return {cc.FiniteTimeAction}
+     */
     clone:function(){
         return new cc.Show();
     }
 });
+
 /**
+ * Show the Node.
+ * @function
  * @return {cc.Show}
  * @example
  * // example
- * var showAction = cc.Show.create();
+ * var showAction = cc.show();
  */
-cc.Show.create = function () {
+cc.show = function () {
     return new cc.Show();
 };
 
 /**
- * Hide the node
+ * Show the Node. Please use cc.show instead.
+ * @static
+ * @deprecated since v3.0 <br /> Please use cc.show instead.
+ * @return {cc.Show}
+ */
+cc.Show.create = cc.show;
+
+/**
+ * Hide the node.
  * @class
  * @extends cc.ActionInstant
  */
 cc.Hide = cc.ActionInstant.extend(/** @lends cc.Hide# */{
+
     /**
-     * @param {Number} time
+     * Called once per frame. Time is the number of seconds of a frame interval.
+     *
+     * @param {Number} dt
      */
-    update:function (time) {
-        this._target.setVisible(false);
+    update:function (dt) {
+        this.target.visible = false;
     },
 
     /**
-     * @return {cc.FiniteTimeAction}
+     * returns a reversed action. <br />
+     * For example: <br />
+     * - The action will be x coordinates of 0 move to 100. <br />
+     * - The reversed action will be x of 100 move to 0.
+     * - Will be rewritten
+     * @returns {cc.Show}
      */
     reverse:function () {
-        return cc.Show.create();
+        return new cc.Show();
     },
 
+    /**
+     * to copy object with deep copy.
+     * returns a clone of action.
+     *
+     * @return {cc.Hide}
+     */
     clone:function(){
         return new cc.Hide();
     }
 });
+
 /**
+ * Hide the node.
+ * @function
  * @return {cc.Hide}
  * @example
  * // example
- * var hideAction = cc.Hide.create();
+ * var hideAction = cc.hide();
  */
-cc.Hide.create = function () {
-    return (new cc.Hide());
+cc.hide = function () {
+    return new cc.Hide();
 };
 
+/**
+ * Hide the node. Please use cc.hide instead.
+ * @static
+ * @deprecated since v3.0 <br /> Please use cc.hide instead.
+ * @return {cc.Hide}
+ * @example
+ * // example
+ * var hideAction = cc.hide();
+ */
+cc.Hide.create = cc.hide;
 
-/** Toggles the visibility of a node
+/**
+ * Toggles the visibility of a node.
  * @class
  * @extends cc.ActionInstant
  */
 cc.ToggleVisibility = cc.ActionInstant.extend(/** @lends cc.ToggleVisibility# */{
+
     /**
-     * @param {Number} time
+     * Called once per frame. Time is the number of seconds of a frame interval.
+     *
+     * @param {Number} dt
      */
-    update:function (time) {
-        this._target.setVisible(!this._target.isVisible());
+    update:function (dt) {
+        this.target.visible = !this.target.visible;
     },
 
     /**
-     * @return {cc.ToggleVisibility}
+     * returns a reversed action.
+     * @returns {cc.ToggleVisibility}
      */
     reverse:function () {
         return new cc.ToggleVisibility();
     },
 
+    /**
+     * to copy object with deep copy.
+     * returns a clone of action.
+     *
+     * @return {cc.ToggleVisibility}
+     */
     clone:function(){
         return new cc.ToggleVisibility();
     }
 });
 
 /**
+ * Toggles the visibility of a node.
+ * @function
  * @return {cc.ToggleVisibility}
  * @example
  * // example
- * var toggleVisibilityAction = cc.ToggleVisibility.create();
+ * var toggleVisibilityAction = cc.toggleVisibility();
  */
-cc.ToggleVisibility.create = function () {
-    return (new cc.ToggleVisibility());
+cc.toggleVisibility = function () {
+    return new cc.ToggleVisibility();
 };
 
+/**
+ * Toggles the visibility of a node. Please use cc.toggleVisibility instead.
+ * @static
+ * @deprecated since v3.0 <br /> Please use cc.toggleVisibility instead.
+ * @return {cc.ToggleVisibility}
+ */
+cc.ToggleVisibility.create = cc.toggleVisibility;
+
+/**
+ * Delete self in the next frame.
+ * @class
+ * @extends cc.ActionInstant
+ * @param {Boolean} [isNeedCleanUp=true]
+ *
+ * @example
+ * // example
+ * var removeSelfAction = new cc.RemoveSelf(false);
+ */
 cc.RemoveSelf = cc.ActionInstant.extend({
-     _isNeedCleanUp:true,
-    ctor:function(){
+     _isNeedCleanUp: true,
+
+	/**
+     * Constructor function, override it to extend the construction behavior, remember to call "this._super()" in the extended "ctor" function. <br />
+	 * Create a RemoveSelf object with a flag indicate whether the target should be cleaned up while removing.
+	 * @param {Boolean} [isNeedCleanUp=true]
+	 */
+    ctor:function(isNeedCleanUp){
         cc.FiniteTimeAction.prototype.ctor.call(this);
-        this._isNeedCleanUp = true;
+
+	    isNeedCleanUp !== undefined && this.init(isNeedCleanUp);
     },
 
-    update:function(time){
-        this._target.removeFromParent(this._isNeedCleanUp);
+    /**
+     * Called once per frame. Time is the number of seconds of a frame interval.
+     *
+     * @param {Number} dt
+     */
+    update:function(dt){
+        this.target.removeFromParent(this._isNeedCleanUp);
     },
 
+    /**
+     * Initialization of the node, please do not call this function by yourself, you should pass the parameters to constructor to initialize it .
+     * @param isNeedCleanUp
+     * @returns {boolean}
+     */
     init:function(isNeedCleanUp){
         this._isNeedCleanUp = isNeedCleanUp;
         return true;
     },
 
+    /**
+     * returns a reversed action.
+     */
     reverse:function(){
         return new cc.RemoveSelf(this._isNeedCleanUp);
     },
 
+    /**
+     * to copy object with deep copy.
+     * returns a clone of action.
+     *
+     * @return {cc.RemoveSelf}
+     */
     clone:function(){
         return new cc.RemoveSelf(this._isNeedCleanUp);
     }
 });
 
-cc.RemoveSelf.create = function(isNeedCleanUp){
-    if(isNeedCleanUp == null)
-        isNeedCleanUp = true;
-    var removeSelf = new cc.RemoveSelf();
-    if(removeSelf)
-        removeSelf.init(isNeedCleanUp);
-    return removeSelf;
+/**
+ * Create a RemoveSelf object with a flag indicate whether the target should be cleaned up while removing.
+ *
+ * @function
+ * @param {Boolean} [isNeedCleanUp=true]
+ * @return {cc.RemoveSelf}
+ *
+ * @example
+ * // example
+ * var removeSelfAction = cc.removeSelf();
+ */
+cc.removeSelf = function(isNeedCleanUp){
+    return new cc.RemoveSelf(isNeedCleanUp);
 };
 
 /**
- * Flips the sprite horizontally
+ * Please use cc.removeSelf instead.
+ * Create a RemoveSelf object with a flag indicate whether the target should be cleaned up while removing.
+ *
+ * @static
+ * @deprecated since v3.0 <br /> Please use cc.removeSelf instead.
+ * @param {Boolean} [isNeedCleanUp=true]
+ * @return {cc.RemoveSelf}
+ */
+cc.RemoveSelf.create = cc.removeSelf;
+
+/**
+ * Flips the sprite horizontally.
  * @class
  * @extends cc.ActionInstant
+ * @param {Boolean} flip Indicate whether the target should be flipped or not
+ *
+ * @example
+ * var flipXAction = new cc.FlipX(true);
  */
 cc.FlipX = cc.ActionInstant.extend(/** @lends cc.FlipX# */{
     _flippedX:false,
-    ctor:function(){
+
+	/**
+     * Constructor function, override it to extend the construction behavior, remember to call "this._super()" in the extended "ctor" function. <br />
+	 * Create a FlipX action to flip or unflip the target.
+	 * @param {Boolean} flip Indicate whether the target should be flipped or not
+	 */
+    ctor:function(flip){
         cc.FiniteTimeAction.prototype.ctor.call(this);
         this._flippedX = false;
+		flip !== undefined && this.initWithFlipX(flip);
     },
+
     /**
-     * @param {Boolean} x
+     * initializes the action with a set flipX.
+     * @param {Boolean} flip
      * @return {Boolean}
      */
-    initWithFlipX:function (x) {
-        this._flippedX = x;
+    initWithFlipX:function (flip) {
+        this._flippedX = flip;
         return true;
     },
 
     /**
-     * @param {Number} time
+     * Called once per frame. Time is the number of seconds of a frame interval.
+     *
+     * @param {Number}  dt
      */
-    update:function (time) {
-        this._target.setFlippedX(this._flippedX);
+    update:function (dt) {
+        this.target.flippedX = this._flippedX;
     },
 
     /**
-     * @return {cc.FiniteTimeAction}
+     * returns a reversed action.
+     * @return {cc.FlipX}
      */
     reverse:function () {
-        return cc.FlipX.create(!this._flippedX);
+        return new cc.FlipX(!this._flippedX);
     },
 
+    /**
+     * to copy object with deep copy.
+     * returns a clone of action.
+     *
+     * @return {cc.FiniteTimeAction}
+     */
     clone:function(){
         var action = new cc.FlipX();
         action.initWithFlipX(this._flippedX);
@@ -239,124 +407,226 @@ cc.FlipX = cc.ActionInstant.extend(/** @lends cc.FlipX# */{
 });
 
 /**
- * @param {Boolean} x
+ * Create a FlipX action to flip or unflip the target.
+ *
+ * @function
+ * @param {Boolean} flip Indicate whether the target should be flipped or not
  * @return {cc.FlipX}
- * var flipXAction = cc.FlipX.create(true);
+ * @example
+ * var flipXAction = cc.flipX(true);
  */
-cc.FlipX.create = function (x) {
-    var ret = new cc.FlipX();
-    if (ret.initWithFlipX(x))
-        return ret;
-    return null;
+cc.flipX = function (flip) {
+    return new cc.FlipX(flip);
 };
+
+/**
+ * Plese use cc.flipX instead.
+ * Create a FlipX action to flip or unflip the target
+ *
+ * @static
+ * @deprecated since v3.0 <br /> Plese use cc.flipX instead.
+ * @param {Boolean} flip Indicate whether the target should be flipped or not
+ * @return {cc.FlipX}
+ */
+cc.FlipX.create = cc.flipX;
 
 /**
  * Flips the sprite vertically
  * @class
  * @extends cc.ActionInstant
+ * @param {Boolean} flip
+ * @example
+ * var flipYAction = new cc.FlipY(true);
  */
 cc.FlipY = cc.ActionInstant.extend(/** @lends cc.FlipY# */{
     _flippedY:false,
-    ctor:function(){
+
+	/**
+     * Constructor function, override it to extend the construction behavior, remember to call "this._super()" in the extended "ctor" function. <br />
+	 * Create a FlipY action to flip or unflip the target.
+	 *
+	 * @param {Boolean} flip
+	 */
+    ctor: function(flip){
         cc.FiniteTimeAction.prototype.ctor.call(this);
         this._flippedY = false;
+
+		flip !== undefined && this.initWithFlipY(flip);
     },
+
     /**
-     * @param {Boolean} Y
+     * initializes the action with a set flipY.
+     * @param {Boolean} flip
      * @return {Boolean}
      */
-    initWithFlipY:function (Y) {
-        this._flippedY = Y;
+    initWithFlipY:function (flip) {
+        this._flippedY = flip;
         return true;
     },
 
     /**
-     * @param {Number} time
+     * Called once per frame. Time is the number of seconds of a frame interval.
+     *
+     * @param {Number}  dt
      */
-    update:function (time) {
-        //this._super();
-        this._target.setFlippedY(this._flippedY);
+    update:function (dt) {
+        this.target.flippedY = this._flippedY;
     },
 
     /**
-     * @return {cc.FiniteTimeAction}
+     * returns a reversed action.
+     * @return {cc.FlipY}
      */
     reverse:function () {
-        return cc.FlipY.create(!this._flippedY);
+        return new cc.FlipY(!this._flippedY);
     },
 
+    /**
+     * to copy object with deep copy.
+     * returns a clone of action.
+     *
+     * @return {cc.FlipY}
+     */
     clone:function(){
         var action = new cc.FlipY();
         action.initWithFlipY(this._flippedY);
         return action;
     }
 });
+
 /**
- * @param {Boolean} y
+ * Create a FlipY action to flip or unflip the target.
+ *
+ * @function
+ * @param {Boolean} flip
  * @return {cc.FlipY}
  * @example
- * // example
- * var flipYAction = cc.FlipY.create();
+ * var flipYAction = cc.flipY(true);
  */
-cc.FlipY.create = function (y) {
-    var ret = new cc.FlipY();
-    if (ret.initWithFlipY(y))
-        return ret;
-    return null;
+cc.flipY = function (flip) {
+    return new cc.FlipY(flip);
 };
 
+/**
+ * Please use cc.flipY instead
+ * Create a FlipY action to flip or unflip the target
+ *
+ * @static
+ * @deprecated since v3.0 <br /> Please use cc.flipY instead.
+ * @param {Boolean} flip
+ * @return {cc.FlipY}
+ */
+cc.FlipY.create = cc.flipY;
 
-/** Places the node in a certain position
+/**
+ * Places the node in a certain position
  * @class
  * @extends cc.ActionInstant
+ * @param {cc.Point|Number} pos
+ * @param {Number} [y]
+ * @example
+ * var placeAction = new cc.Place(cc.p(200, 200));
+ * var placeAction = new cc.Place(200, 200);
  */
 cc.Place = cc.ActionInstant.extend(/** @lends cc.Place# */{
-    _position:null,
-    ctor:function(){
+    _x: 0,
+	_y: 0,
+
+	/**
+     * Constructor function, override it to extend the construction behavior, remember to call "this._super()" in the extended "ctor" function. <br />
+	 * Creates a Place action with a position.
+	 * @param {cc.Point|Number} pos
+	 * @param {Number} [y]
+	 */
+    ctor:function(pos, y){
         cc.FiniteTimeAction.prototype.ctor.call(this);
-        this._position = cc.p(0, 0);
+        this._x = 0;
+	    this._y = 0;
+
+		if (pos !== undefined) {
+			if (pos.x !== undefined) {
+				y = pos.y;
+				pos = pos.x;
+			}
+			this.initWithPosition(pos, y);
+		}
     },
 
-    /** Initializes a Place action with a position
-     * @param {cc.Point} pos
+    /**
+     * Initializes a Place action with a position
+     * @param {number} x
+     * @param {number} y
      * @return {Boolean}
      */
-    initWithPosition:function (pos) {
-        this._position.x = pos.x;
-        this._position.y = pos.y;
+    initWithPosition: function (x, y) {
+        this._x = x;
+        this._y = y;
         return true;
     },
 
     /**
-     * @param {Number} time
+     * Called once per frame. Time is the number of seconds of a frame interval.
+     *
+     * @param {Number}  dt
      */
-    update:function (time) {
-        this._target.setPosition(this._position);
+    update:function (dt) {
+        this.target.setPosition(this._x, this._y);
     },
 
+    /**
+     * to copy object with deep copy.
+     * returns a clone of action.
+     *
+     * @return {cc.Place}
+     */
     clone:function(){
         var action = new cc.Place();
-        action.initWithPosition(this._position);
+        action.initWithPosition(this._x, this._y);
         return action;
     }
 });
-/** creates a Place action with a position
- * @param {cc.Point} pos
+
+/**
+ * Creates a Place action with a position.
+ * @function
+ * @param {cc.Point|Number} pos
+ * @param {Number} [y]
  * @return {cc.Place}
  * @example
  * // example
- * var placeAction = cc.Place.create(cc.p(200, 200));
+ * var placeAction = cc.place(cc.p(200, 200));
+ * var placeAction = cc.place(200, 200);
  */
-cc.Place.create = function (pos) {
-    var ret = new cc.Place();
-    ret.initWithPosition(pos);
-    return ret;
+cc.place = function (pos, y) {
+    return new cc.Place(pos, y);
 };
 
+/**
+ * Please use cc.place instead.
+ * Creates a Place action with a position.
+ * @static
+ * @deprecated since v3.0 <br /> Please use cc.place instead.
+ * @param {cc.Point|Number} pos
+ * @param {Number} [y]
+ * @return {cc.Place}
+ */
+cc.Place.create = cc.place;
 
-/** Calls a 'callback'
+
+/**
+ * Calls a 'callback'.
  * @class
  * @extends cc.ActionInstant
+ * @param {function} selector
+ * @param {object|null} [selectorTarget]
+ * @param {*|null} [data] data for function, it accepts all data types.
+ * @example
+ * // example
+ * // CallFunc without data
+ * var finish = new cc.CallFunc(this.removeSprite, this);
+ *
+ * // CallFunc with data
+ * var finish = new cc.CallFunc(this.removeFromParentAndCleanup, this,  true);
  */
 cc.CallFunc = cc.ActionInstant.extend(/** @lends cc.CallFunc# */{
     _selectorTarget:null,
@@ -364,34 +634,38 @@ cc.CallFunc = cc.ActionInstant.extend(/** @lends cc.CallFunc# */{
     _function:null,
     _data:null,
 
-    ctor:function(){
+	/**
+     * Constructor function, override it to extend the construction behavior, remember to call "this._super()" in the extended "ctor" function. <br />
+	 * Creates a CallFunc action with the callback.
+	 * @param {function} selector
+	 * @param {object|null} [selectorTarget]
+	 * @param {*|null} [data] data for function, it accepts all data types.
+	 */
+    ctor:function(selector, selectorTarget, data){
         cc.FiniteTimeAction.prototype.ctor.call(this);
-        this._selectorTarget = null;
-        this._callFunc = null;
-        this._function = null;
-        this._data = null;
+
+		if(selector !== undefined){
+			if(selectorTarget === undefined)
+				this.initWithFunction(selector);
+			else this.initWithFunction(selector, selectorTarget, data);
+		}
     },
 
     /**
-     * @param {function|Null} selector
-     * @param {object} selectorTarget
-     * @param {*|Null} data data for function, it accepts all data types.
+     * Initializes the action with a function or function and its target
+     * @param {function} selector
+     * @param {object|Null} selectorTarget
+     * @param {*|Null} [data] data for function, it accepts all data types.
      * @return {Boolean}
      */
-    initWithTarget:function (selector, selectorTarget, data) {
-        this._data = data;
-        this._callFunc = selector;
-        this._selectorTarget = selectorTarget;
-        return true;
-    },
-
-    /**
-     * initializes the action with the std::function<void()>
-     * @param {function} func
-     * @returns {boolean}
-     */
-    initWithFunction:function(func){
-        this._function = func;
+    initWithFunction:function (selector, selectorTarget, data) {
+	    if (selectorTarget) {
+            this._data = data;
+            this._callFunc = selector;
+            this._selectorTarget = selectorTarget;
+	    }
+	    else if (selector)
+		    this._function = selector;
         return true;
     },
 
@@ -400,20 +674,22 @@ cc.CallFunc = cc.ActionInstant.extend(/** @lends cc.CallFunc# */{
      */
     execute:function () {
         if (this._callFunc != null)         //CallFunc, N, ND
-            this._callFunc.call(this._selectorTarget, this._target, this._data);
+            this._callFunc.call(this._selectorTarget, this.target, this._data);
         else if(this._function)
-            this._function.call(null, this._target);
+            this._function.call(null, this.target);
     },
 
     /**
-     * @param {Number} time
+     * Called once per frame. Time is the number of seconds of a frame interval.
+     *
+     * @param {Number}  dt
      */
-    update:function (time) {
-        //this._super(target);
+    update:function (dt) {
         this.execute();
     },
 
     /**
+     * Get selectorTarget.
      * @return {object}
      */
     getTargetCallback:function () {
@@ -421,60 +697,61 @@ cc.CallFunc = cc.ActionInstant.extend(/** @lends cc.CallFunc# */{
     },
 
     /**
+     * Set selectorTarget.
      * @param {object} sel
      */
     setTargetCallback:function (sel) {
-        if (sel != this._selectorTarget) {
+        if (sel !== this._selectorTarget) {
             if (this._selectorTarget)
                 this._selectorTarget = null;
             this._selectorTarget = sel;
         }
     },
 
-    copy:function() {
-        var n = new cc.CallFunc();
-        if(this._selectorTarget){
-            n.initWithTarget(this._callFunc,  this._selectorTarget, this._data)
-        }else if(this._function){
-            n.initWithFunction(this._function);
-        }
-        return n;
-    },
-
+    /**
+     * to copy object with deep copy.
+     * returns a clone of action.
+     *
+     * @return {cc.CallFunc}
+     */
     clone:function(){
        var action = new cc.CallFunc();
         if(this._selectorTarget){
-             action.initWithTarget(this._callFunc,  this._selectorTarget, this._data)
+             action.initWithFunction(this._callFunc,  this._selectorTarget, this._data)
         }else if(this._function){
              action.initWithFunction(this._function);
         }
         return action;
     }
 });
-/** creates the action with the callback
+
+/**
+ * Creates the action with the callback
+ * @function
  * @param {function} selector
- * @param {object|null} [selectorTarget=]
- * @param {*|Null} [data=] data for function, it accepts all data types.
+ * @param {object|null} [selectorTarget]
+ * @param {*|null} [data] data for function, it accepts all data types.
  * @return {cc.CallFunc}
  * @example
  * // example
  * // CallFunc without data
- * var finish = cc.CallFunc.create(this.removeSprite, this);
+ * var finish = cc.callFunc(this.removeSprite, this);
  *
  * // CallFunc with data
- * var finish = cc.CallFunc.create(this.removeFromParentAndCleanup, this._grossini,  true),
+ * var finish = cc.callFunc(this.removeFromParentAndCleanup, this._grossini,  true);
  */
-cc.CallFunc.create = function (selector, selectorTarget, data) {
-    var ret = new cc.CallFunc();
-    if(arguments.length == 1){
-        if (ret && ret.initWithFunction(selector)) {
-            return ret;
-        }
-    }else{
-        if (ret && ret.initWithTarget(selector, selectorTarget, data)) {
-            ret._callFunc = selector;
-            return ret;
-        }
-    }
-    return null;
+cc.callFunc = function (selector, selectorTarget, data) {
+    return new cc.CallFunc(selector, selectorTarget, data);
 };
+
+/**
+ * Please use cc.callFunc instead.
+ * Creates the action with the callback.
+ * @static
+ * @deprecated since v3.0 <br /> Please use cc.callFunc instead.
+ * @param {function} selector
+ * @param {object|null} [selectorTarget]
+ * @param {*|null} [data] data for function, it accepts all data types.
+ * @return {cc.CallFunc}
+ */
+cc.CallFunc.create = cc.callFunc;

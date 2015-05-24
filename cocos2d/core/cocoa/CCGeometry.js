@@ -1,7 +1,7 @@
 /****************************************************************************
- Copyright (c) 2010-2012 cocos2d-x.org
  Copyright (c) 2008-2010 Ricardo Quesada
- Copyright (c) 2011      Zynga Inc.
+ Copyright (c) 2011-2012 cocos2d-x.org
+ Copyright (c) 2013-2014 Chukong Technologies Inc.
 
  http://www.cocos2d-x.org
 
@@ -24,346 +24,159 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-//--------------------------------------------------------
-//
-// POINT
-//
-//--------------------------------------------------------
 /**
- * @class
- * @param {Number} _x
- * @param {Number} _y
- * Constructor
- */
-cc.Point = function (_x, _y) {
-    this.x = _x || 0;
-    this.y = _y || 0;
-};
-
-cc._PointConst = function (x, y) {
-    this._x = x || 0;
-    this._y = y || 0;
-
-    this.setX = function (x) {
-        this._x = x;
-    };
-    this.setY = function (y) {
-        this._y = y;
-    }
-};
-
-cc._pConst = function (x, y) {
-    return new cc._PointConst(x, y);
-};
-
-Object.defineProperties(cc._PointConst.prototype, {
-    x: {
-        get: function () {
-            return this._x;
-        },
-        set: function () {
-            console.warn("Warning of _PointConst: Modification to const or private property is forbidden");
-        },
-        enumerable: true
-    },
-
-    y: {
-        get: function () {
-            return this._y;
-        },
-        set: function () {
-            console.warn("Warning of _PointConst: Modification to const or private property is forbidden");
-        },
-        enumerable: true
-    }
-});
-
-/**
- * @function
+ * cc.Point is the class for point object, please do not use its constructor to create points, use cc.p() alias function instead.
+ * @class cc.Point
  * @param {Number} x
+ * @param {Number} y
+ * @see cc.p
+ */
+cc.Point = function (x, y) {
+    this.x = x || 0;
+    this.y = y || 0;
+};
+
+/**
+ * Helper function that creates a cc.Point.
+ * @function
+ * @param {Number|cc.Point} x a Number or a size object
  * @param {Number} y
  * @return {cc.Point}
- */
-cc.PointMake = function (x, y) {
-    cc.log("cc.PointMake will be deprecated sooner or later. Use cc.p instead.");
-    return new cc.Point(x, y);
-};
-
-/**
- * Helper macro that creates a cc.Point.
- * @param {Number} x
- * @param {Number} y
+ * @example
+ * var point1 = cc.p();
+ * var point2 = cc.p(100, 100);
+ * var point3 = cc.p(point2);
+ * var point4 = cc.p({x: 100, y: 100});
  */
 cc.p = function (x, y) {
     // This can actually make use of "hidden classes" in JITs and thus decrease
     // memory usage and overall performance drastically
-    //return new cc.Point(x, y);
+    // return cc.p(x, y);
     // but this one will instead flood the heap with newly allocated hash maps
     // giving little room for optimization by the JIT,
-    // note: we have tested this item on Chrome and firefox, it is faster than new cc.Point(x, y)
+    // note: we have tested this item on Chrome and firefox, it is faster than cc.p(x, y)
+    if (x === undefined)
+        return {x: 0, y: 0};
+    if (y === undefined)
+        return {x: x.x, y: x.y};
     return {x: x, y: y};
 };
 
-// JSB compatbility: in JSB, cc._p reuses objects instead of creating new ones
-cc._p = cc.p;
-
 /**
- * The "left bottom" point -- equivalent to cc.p(0, 0).
- * @function
- * @return {cc.Point}
- */
-cc.PointZero = function () {
-    return cc.p(0, 0);
-};
-
-/**
+ * Check whether a point's value equals to another
  * @function
  * @param {cc.Point} point1
  * @param {cc.Point} point2
  * @return {Boolean}
  */
 cc.pointEqualToPoint = function (point1, point2) {
-    if (!point1 || !point2)
-        return false;
-    return ((point1.x === point2.x) && (point1.y === point2.y));
+    return point1 && point2 && (point1.x === point2.x) && (point1.y === point2.y);
 };
 
-// deprecated
-//cc.Point.CCPointEqualToPoint = cc.pointEqualToPoint;
-
-
-//--------------------------------------------------------
-//
-// SIZE
-//
-//--------------------------------------------------------
 
 /**
- * @class
- * @param {Number} _width
- * @param {Number} _height
- * Constructor
- */
-cc.Size = function (_width, _height) {
-    this.width = _width || 0;
-    this.height = _height || 0;
-};
-
-cc._SizeConst = function (width, height) {
-    this._width = width || 0;
-    this._height = height || 0;
-
-    this.setWidth = function (width) {
-        this._width = width;
-    };
-    this.setHeight = function (height) {
-        this._height = height;
-    }
-};
-
-cc._sizeConst = function (width, height) {
-    return new cc._SizeConst(width, height);
-};
-
-Object.defineProperties(cc._SizeConst.prototype, {
-    width: {
-        get: function () {
-            return this._width;
-        },
-        set: function () {
-            console.warn("Warning of _SizeConst: Modification to const or private property is forbidden");
-        },
-        enumerable: true
-    },
-
-    height: {
-        get: function () {
-            return this._height;
-        },
-        set: function () {
-            console.warn("Warning of _SizeConst: Modification to const or private property is forbidden");
-        },
-        enumerable: true
-    }
-});
-
-/**
- * @function
+ * cc.Size is the class for size object, please do not use its constructor to create sizes, use cc.size() alias function instead.
+ * @class cc.Size
  * @param {Number} width
  * @param {Number} height
- * @return {cc.Size}
+ * @see cc.size
  */
-cc.SizeMake = function (width, height) {
-    cc.log("cc.SizeMake will be deprecated sooner or later. Use cc.size instead.");
-    return cc.size(width, height);
+cc.Size = function (width, height) {
+    this.width = width || 0;
+    this.height = height || 0;
 };
 
 /**
+ * Helper function that creates a cc.Size.
  * @function
- * @param {Number} w width
+ * @param {Number|cc.Size} w width or a size object
  * @param {Number} h height
  * @return {cc.Size}
+ * @example
+ * var size1 = cc.size();
+ * var size2 = cc.size(100,100);
+ * var size3 = cc.size(size2);
+ * var size4 = cc.size({width: 100, height: 100});
  */
 cc.size = function (w, h) {
     // This can actually make use of "hidden classes" in JITs and thus decrease
-    // memory usage and overall peformance drastically
-    //return new cc.Size(w, h);
+    // memory usage and overall performance drastically
+    //return cc.size(w, h);
     // but this one will instead flood the heap with newly allocated hash maps
     // giving little room for optimization by the JIT
-    // note: we have tested this item on Chrome and firefox, it is faster than new cc.Size(w, h)
-    return { width: w, height: h};
+    // note: we have tested this item on Chrome and firefox, it is faster than cc.size(w, h)
+    if (w === undefined)
+        return {width: 0, height: 0};
+    if (h === undefined)
+        return {width: w.width, height: w.height};
+    return {width: w, height: h};
 };
 
-// JSB compatbility: in JSB, cc._size reuses objects instead of creating new ones
-cc._size = cc.size;
-
 /**
- * The "zero" size -- equivalent to cc.size(0, 0).
- * @function
- * @return {cc.Size}
- */
-cc.SizeZero = function () {
-    return cc.size(0, 0);
-};
-
-cc._zeroConsts = {pointZero: cc._pConst(0,0), sizeZero: cc._sizeConst(0,0)};
-
-Object.defineProperties(cc, {
-    POINT_ZERO:{
-        get:function () {
-            return cc._zeroConsts.pointZero;
-        }
-    },
-    SIZE_ZERO:{
-        get:function () {
-            return cc._zeroConsts.sizeZero;
-        }
-    },
-    RECT_ZERO:{
-        get:function () {
-            return cc.rect(0, 0, 0, 0);
-        }
-    }
-});
-
-
-/**
+ * Check whether a point's value equals to another
  * @function
  * @param {cc.Size} size1
  * @param {cc.Size} size2
  * @return {Boolean}
  */
 cc.sizeEqualToSize = function (size1, size2) {
-    if (!size1 || !size2)
-        return false;
-    return ((size1.width == size2.width) && (size1.height == size2.height));
+    return (size1 && size2 && (size1.width === size2.width) && (size1.height === size2.height));
 };
 
-// deprecated
-//cc.Size.CCSizeEqualToSize = cc.sizeEqualToSize;
-
-//--------------------------------------------------------
-//
-// RECT
-//
-//--------------------------------------------------------
 
 /**
- * @class
- * @param {Number|cc.Point|cc.Rect} [x1] a Number value as x or a cc.Point object as origin or a cc.Rect clone object
- * @param {Number|cc.Size} [y1] x1 a Number value as y or a cc.Size object as size
- * @param {Number} [width1]
- * @param {Number} [height1]
- * Constructor
- */
-cc.Rect = function (x1, y1, width1, height1) {
-    var argLen =arguments.length;
-    if(argLen === 4){
-        this._origin = new cc.Point(x1 || 0, y1 || 0);
-        this._size = new cc.Size(width1 || 0, height1 || 0);
-        return;
-    }
-    if(argLen === 1) {
-        this._origin = new cc.Point(x1._origin.x, x1._origin.y);
-        this._size = new cc.Size(x1._size.width, x1._size.height);
-        return;
-    }
-    if(argLen === 0) {
-        this._origin = new cc.Point(0, 0);
-        this._size = new cc.Size(0,0);
-        return;
-    }
-    if(argLen === 2) {
-        this._origin = new cc.Point(x1.x, x1.y);
-        this._size = new cc.Size(y1.width,y1.height);
-        return;
-    }
-    throw "unknown argument type";
-};
-
-/**
- * @function
- * @param {Number} x
- * @param {Number} y
+ * cc.Rect is the class for rect object, please do not use its constructor to create rects, use cc.rect() alias function instead.
+ * @class cc.Rect
  * @param {Number} width
  * @param {Number} height
- * @return {cc.Rect}
+ * @see cc.rect
  */
-cc.RectMake = function (x, y, width, height) {
-    cc.log("cc.RectMake will be deprecated sooner or later. Use cc.rect instead.");
-    return cc.rect(x, y, width, height);
+cc.Rect = function (x, y, width, height) {
+    this.x = x||0;
+    this.y = y||0;
+    this.width = width||0;
+    this.height = height||0;
 };
-
-// backward compatible
-cc.rect = function (x, y, w, h) {
-    var argLen =arguments.length;
-    if(argLen === 0)
-        return new cc.Rect(0,0,0,0);
-
-    if(argLen === 1)
-        return new cc.Rect(x.x, x.y, x.width, x.height);
-
-    if(argLen === 2)
-        return new cc.Rect(x.x, x.y, y.width, y.height);
-
-    if(argLen === 4)
-        return new cc.Rect(x,y,w,h);
-
-    throw "unknown argument type";
-};
-
-// JSB compatbility: in JSB, cc._rect reuses objects instead of creating new ones
-cc._rect = cc.rect;
 
 /**
- * The "zero" rectangle -- equivalent to cc.rect(0, 0, 0, 0).
+ * Helper function that creates a cc.Rect.
  * @function
- * @return {cc.Rect}
+ * @param {Number|cc.Rect} x a number or a rect object
+ * @param {Number} y
+ * @param {Number} w
+ * @param {Number} h
+ * @returns {cc.Rect}
+ * @example
+ * var rect1 = cc.rect();
+ * var rect2 = cc.rect(100,100,100,100);
+ * var rect3 = cc.rect(rect2);
+ * var rect4 = cc.rect({x: 100, y: 100, width: 100, height: 100});
  */
-cc.RectZero = function () {
-    return cc.rect(0, 0, 0, 0);
+cc.rect = function (x, y, w, h) {
+    if (x === undefined)
+        return {x: 0, y: 0, width: 0, height: 0};
+    if (y === undefined)
+        return {x: x.x, y: x.y, width: x.width, height: x.height};
+    return {x: x, y: y, width: w, height: h };
 };
 
 /**
+ * Check whether a rect's value equals to another
  * @function
  * @param {cc.Rect} rect1
  * @param {cc.Rect} rect2
  * @return {Boolean}
  */
 cc.rectEqualToRect = function (rect1, rect2) {
-    if(!rect1 || !rect2)
-        return false;
-    return ((cc.pointEqualToPoint(rect1._origin, rect2._origin)) &&
-        (cc.sizeEqualToSize(rect1._size, rect2._size)));
+    return rect1 && rect2 && (rect1.x === rect2.x) && (rect1.y === rect2.y) && (rect1.width === rect2.width) && (rect1.height === rect2.height);
 };
 
 cc._rectEqualToZero = function(rect){
-    if(!rect)
-        return false;
-    return (rect.x === 0) && (rect.y === 0) && (rect.width === 0) && (rect.height === 0);
+    return rect && (rect.x === 0) && (rect.y === 0) && (rect.width === 0) && (rect.height === 0);
 };
 
 /**
+ * Check whether the rect1 contains rect2
  * @function
  * @param {cc.Rect} rect1
  * @param {cc.Rect} rect2
@@ -372,46 +185,45 @@ cc._rectEqualToZero = function(rect){
 cc.rectContainsRect = function (rect1, rect2) {
     if (!rect1 || !rect2)
         return false;
-
     return !((rect1.x >= rect2.x) || (rect1.y >= rect2.y) ||
         ( rect1.x + rect1.width <= rect2.x + rect2.width) ||
         ( rect1.y + rect1.height <= rect2.y + rect2.height));
 };
 
 /**
- * return the rightmost x-value of 'rect'
+ * Returns the rightmost x-value of a rect
  * @function
  * @param {cc.Rect} rect
- * @return {Number}
+ * @return {Number} The rightmost x value
  */
 cc.rectGetMaxX = function (rect) {
     return (rect.x + rect.width);
 };
 
 /**
- * return the midpoint x-value of 'rect'
+ * Return the midpoint x-value of a rect
  * @function
  * @param {cc.Rect} rect
- * @return {Number}
+ * @return {Number} The midpoint x value
  */
 cc.rectGetMidX = function (rect) {
     return (rect.x + rect.width / 2.0);
 };
 /**
- * return the leftmost x-value of 'rect'
+ * Returns the leftmost x-value of a rect
  * @function
  * @param {cc.Rect} rect
- * @return {Number}
+ * @return {Number} The leftmost x value
  */
 cc.rectGetMinX = function (rect) {
     return rect.x;
 };
 
 /**
- * Return the topmost y-value of `rect'
+ * Return the topmost y-value of a rect
  * @function
  * @param {cc.Rect} rect
- * @return {Number}
+ * @return {Number} The topmost y value
  */
 cc.rectGetMaxY = function (rect) {
     return(rect.y + rect.height);
@@ -421,23 +233,24 @@ cc.rectGetMaxY = function (rect) {
  * Return the midpoint y-value of `rect'
  * @function
  * @param {cc.Rect} rect
- * @return {Number}
+ * @return {Number} The midpoint y value
  */
 cc.rectGetMidY = function (rect) {
     return rect.y + rect.height / 2.0;
 };
 
 /**
- * Return the bottommost y-value of `rect'
+ * Return the bottommost y-value of a rect
  * @function
  * @param {cc.Rect} rect
- * @return {Number}
+ * @return {Number} The bottommost y value
  */
 cc.rectGetMinY = function (rect) {
     return rect.y;
 };
 
 /**
+ * Check whether a rect contains a point
  * @function
  * @param {cc.Rect} rect
  * @param {cc.Point} point
@@ -449,19 +262,22 @@ cc.rectContainsPoint = function (rect, point) {
 };
 
 /**
+ * Check whether a rect intersect with another
  * @function
  * @param {cc.Rect} rectA
  * @param {cc.Rect} rectB
  * @return {Boolean}
  */
-cc.rectIntersectsRect = function (rectA, rectB) {
-    return !(cc.rectGetMaxX(rectA) < cc.rectGetMinX(rectB) ||
-        cc.rectGetMaxX(rectB) < cc.rectGetMinX(rectA) ||
-        cc.rectGetMaxY(rectA) < cc.rectGetMinY(rectB) ||
-        cc.rectGetMaxY(rectB) < cc.rectGetMinY(rectA));
+cc.rectIntersectsRect = function (ra, rb) {
+    var maxax = ra.x + ra.width,
+        maxay = ra.y + ra.height,
+        maxbx = rb.x + rb.width,
+        maxby = rb.y + rb.height;
+    return !(maxax < rb.x || maxbx < ra.x || maxay < rb.y || maxby < ra.y);
 };
 
 /**
+ * Check whether a rect overlaps another
  * @function
  * @param {cc.Rect} rectA
  * @param {cc.Rect} rectB
@@ -508,94 +324,4 @@ cc.rectIntersection = function (rectA, rectB) {
     return intersection;
 };
 
-//
-// Rect JSB compatibility
-// JSB uses:
-//   rect.x, rect.y, rect.width and rect.height
-// while HTML5 uses:
-//   rect.origin, rect.size
-//
-cc.Rect.prototype.getX = function() {
-    return this._origin.x;
-};
-cc.Rect.prototype.setX = function(x) {
-    this._origin.x = x;
-};
-cc.Rect.prototype.getY = function() {
-    return this._origin.y;
-};
-cc.Rect.prototype.setY = function(y) {
-    this._origin.y = y;
-};
-cc.Rect.prototype.getWidth = function(){
-    return this._size.width;
-};
-cc.Rect.prototype.setWidth = function(w){
-    this._size.width = w;
-};
-cc.Rect.prototype.getHeight = function(){
-    return this._size.height;
-};
-cc.Rect.prototype.setHeight = function(h){
-    this._size.height = h;
-};
-
-Object.defineProperties(cc.Rect.prototype,
-    {
-        "x": {
-            get: function () {
-                return this.getX();
-            },
-            set: function (newValue) {
-                this.setX(newValue);
-            },
-            enumerable: true,
-            configurable: true
-        },
-        "y": {
-            get: function () {
-                return this.getY();
-            },
-            set: function (newValue) {
-                this.setY(newValue);
-            },
-            enumerable: true,
-            configurable: true
-        },
-        "width": {
-            get: function () {
-                return this.getWidth();
-            },
-            set: function (newValue) {
-                this.setWidth(newValue);
-            },
-            enumerable: true,
-            configurable: true
-        },
-        "height": {
-            get: function () {
-                return this.getHeight();
-            },
-            set: function (newValue) {
-                this.setHeight(newValue);
-            },
-            enumerable: true,
-            configurable: true
-        }
-    }
-);
-
-// Deprecated
-/*cc.Rect.CCRectEqualToRect = cc.rectEqualToRect;
-cc.Rect.CCRectContainsRect = cc.rectContainsRect;
-cc.Rect.CCRectGetMaxX = cc.rectGetMaxX;
-cc.Rect.CCRectGetMidX = cc.rectGetMidX;
-cc.Rect.CCRectGetMinX = cc.rectGetMinX;
-cc.Rect.CCRectGetMaxY = cc.rectGetMaxY;
-cc.Rect.CCRectGetMidY = cc.rectGetMidY;
-cc.Rect.CCRectGetMinY = cc.rectGetMinY;
-cc.Rect.CCRectContainsPoint = cc.rectContainsPoint;
-cc.Rect.CCRectIntersectsRect = cc.rectIntersectsRect;
-cc.Rect.CCRectUnion = cc.rectUnion;
-cc.Rect.CCRectIntersection = cc.rectIntersection;*/
 

@@ -1,7 +1,7 @@
 /****************************************************************************
- Copyright (c) 2010-2012 cocos2d-x.org
  Copyright (c) 2008-2010 Ricardo Quesada
- Copyright (c) 2011      Zynga Inc.
+ Copyright (c) 2011-2012 cocos2d-x.org
+ Copyright (c) 2013-2014 Chukong Technologies Inc.
 
  http://www.cocos2d-x.org
 
@@ -36,6 +36,18 @@
  * @extends cc.Grid3DAction
  */
 cc.PageTurn3D = cc.Grid3DAction.extend(/** @lends cc.PageTurn3D# */{
+    getGrid: function(){
+        var result = new cc.Grid3D(this._gridSize);
+        result.setNeedDepthTestForBlit(true);
+        return result;
+    },
+
+    clone: function(){
+       var ret = new cc.PageTurn3D();
+        ret.initWithDuration(this._duration, this._gridSize);
+        return ret;
+    },
+
     /**
      * Update each tick                                         <br/>
      * Time is the percentage of the way through the duration
@@ -58,7 +70,7 @@ cc.PageTurn3D = cc.Grid3DAction.extend(/** @lends cc.PageTurn3D# */{
                 locVer.x = i;
                 locVer.y = j;
                 // Get original vertex
-                var p = this.originalVertex(locVer);
+                var p = this.getOriginalVertex(locVer);
 
                 var R = Math.sqrt((p.x * p.x) + ((p.y - ay) * (p.y - ay)));
                 var r = R * sinTheta;
@@ -91,15 +103,23 @@ cc.PageTurn3D = cc.Grid3DAction.extend(/** @lends cc.PageTurn3D# */{
     }
 });
 
-/**  */
 /**
  * create PageTurn3D action
+ * @function
  * @param {Number} duration
  * @param {cc.Size} gridSize
  * @return {cc.PageTurn3D}
  */
-cc.PageTurn3D.create = function (duration, gridSize) {
-    var action = new cc.PageTurn3D();
-    action.initWithDuration(duration, gridSize);
-    return action;
+cc.pageTurn3D = function (duration, gridSize) {
+    return new cc.PageTurn3D(duration, gridSize);
 };
+/**
+ * Please use cc.pageTurn3D instead
+ * create PageTurn3D action
+ * @param {Number} duration
+ * @param {cc.Size} gridSize
+ * @return {cc.PageTurn3D}
+ * @static
+ * @deprecated since v3.0 please use cc.pageTurn3D instead.
+ */
+cc.PageTurn3D.create = cc.pageTurn3D;

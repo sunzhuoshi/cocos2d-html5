@@ -1,7 +1,7 @@
 /****************************************************************************
- Copyright (c) 2010-2012 cocos2d-x.org
  Copyright (c) 2008-2010 Ricardo Quesada
- Copyright (c) 2011      Zynga Inc.
+ Copyright (c) 2011-2012 cocos2d-x.org
+ Copyright (c) 2013-2014 Chukong Technologies Inc.
 
  http://www.cocos2d-x.org
 
@@ -23,40 +23,6 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
  ****************************************************************************/
-
-// ------------------- vertex attrib flags -----------------------------
-/**
- * @constant
- * @type {Number}
- */
-cc.VERTEX_ATTRIB_FLAG_NONE = 0;
-/**
- * @constant
- * @type {Number}
- */
-cc.VERTEX_ATTRIB_FLAG_POSITION = 1 << 0;
-/**
- * @constant
- * @type {Number}
- */
-cc.VERTEX_ATTRIB_FLAG_COLOR = 1 << 1;
-/**
- * @constant
- * @type {Number}
- */
-cc.VERTEX_ATTRIB_FLAG_TEXCOORDS = 1 << 2;
-/**
- * @constant
- * @type {Number}
- */
-cc.VERTEX_ATTRIB_FLAG_POSCOLORTEX = ( cc.VERTEX_ATTRIB_FLAG_POSITION | cc.VERTEX_ATTRIB_FLAG_COLOR | cc.VERTEX_ATTRIB_FLAG_TEXCOORDS );
-
-/**
- * GL server side states
- * @constant
- * @type {Number}
- */
-cc.GL_ALL = 0;
 
 cc._currentProjectionMatrix = -1;
 cc._vertexAttribPosition = false;
@@ -80,6 +46,7 @@ if (cc.ENABLE_GL_STATE_CACHE) {
 /**
  * Invalidates the GL state cache.<br/>
  * If CC_ENABLE_GL_STATE_CACHE it will reset the GL state cache.
+ * @function
  */
 cc.glInvalidateStateCache = function () {
     cc.kmGLFreeAll();
@@ -101,24 +68,26 @@ cc.glInvalidateStateCache = function () {
 /**
  * Uses the GL program in case program is different than the current one.<br/>
  * If CC_ENABLE_GL_STATE_CACHE is disabled, it will the glUseProgram() directly.
+ * @function
  * @param {WebGLProgram} program
  */
 cc.glUseProgram = function (program) {
     if (program !== cc._currentShaderProgram) {
         cc._currentShaderProgram = program;
-        cc.renderContext.useProgram(program);
+        cc._renderContext.useProgram(program);
     }
 };
 
 if(!cc.ENABLE_GL_STATE_CACHE){
     cc.glUseProgram = function (program) {
-        cc.renderContext.useProgram(program);
+        cc._renderContext.useProgram(program);
     }
 }
 
 /**
  * Deletes the GL program. If it is the one that is being used, it invalidates it.<br/>
  * If CC_ENABLE_GL_STATE_CACHE is disabled, it will the glDeleteProgram() directly.
+ * @function
  * @param {WebGLProgram} program
  */
 cc.glDeleteProgram = function (program) {
@@ -132,6 +101,7 @@ cc.glDeleteProgram = function (program) {
 /**
  * Uses a blending function in case it not already used.<br/>
  * If CC_ENABLE_GL_STATE_CACHE is disabled, it will the glBlendFunc() directly.
+ * @function
  * @param {Number} sfactor
  * @param {Number} dfactor
  */
@@ -143,23 +113,33 @@ cc.glBlendFunc = function (sfactor, dfactor) {
     }
 };
 
+/**
+ * @function
+ * @param {Number} sfactor
+ * @param {Number} dfactor
+ */
 cc.setBlending = function (sfactor, dfactor) {
-    var ctx = cc.renderContext;
+    var ctx = cc._renderContext;
     if ((sfactor === ctx.ONE) && (dfactor === ctx.ZERO)) {
         ctx.disable(ctx.BLEND);
     } else {
         ctx.enable(ctx.BLEND);
-        cc.renderContext.blendFunc(sfactor,dfactor);
+        cc._renderContext.blendFunc(sfactor,dfactor);
         //TODO need fix for WebGL
         //ctx.blendFuncSeparate(ctx.SRC_ALPHA, dfactor, sfactor, dfactor);
     }
 };
 
+/**
+ * @function
+ * @param {Number} sfactor
+ * @param {Number} dfactor
+ */
 cc.glBlendFuncForParticle = function(sfactor, dfactor) {
     if ((sfactor !== cc._blendingSource) || (dfactor !== cc._blendingDest)) {
         cc._blendingSource = sfactor;
         cc._blendingDest = dfactor;
-        var ctx = cc.renderContext;
+        var ctx = cc._renderContext;
         if ((sfactor === ctx.ONE) && (dfactor === ctx.ZERO)) {
             ctx.disable(ctx.BLEND);
         } else {
@@ -177,9 +157,10 @@ if(!cc.ENABLE_GL_STATE_CACHE){
 /**
  * Resets the blending mode back to the cached state in case you used glBlendFuncSeparate() or glBlendEquation().<br/>
  * If CC_ENABLE_GL_STATE_CACHE is disabled, it will just set the default blending mode using GL_FUNC_ADD.
+ * @function
  */
 cc.glBlendResetToCache = function () {
-    var ctx = cc.renderContext;
+    var ctx = cc._renderContext;
     ctx.blendEquation(ctx.FUNC_ADD);
     if (cc.ENABLE_GL_STATE_CACHE)
         cc.setBlending(cc._blendingSource, cc._blendingDest);
@@ -189,6 +170,7 @@ cc.glBlendResetToCache = function () {
 
 /**
  * sets the projection matrix as dirty
+ * @function
  */
 cc.setProjectionMatrixDirty = function () {
     cc._currentProjectionMatrix = -1;
@@ -200,15 +182,16 @@ cc.setProjectionMatrixDirty = function () {
  *    Possible flags:                                           <br/>
  *    cc.VERTEX_ATTRIB_FLAG_POSITION                             <br/>
  *    cc.VERTEX_ATTRIB_FLAG_COLOR                                <br/>
- *    cc.VERTEX_ATTRIB_FLAG_TEXCOORDS                            <br/>
+ *    cc.VERTEX_ATTRIB_FLAG_TEX_COORDS                            <br/>
  *                                                              <br/>
  *    These flags can be ORed. The flags that are not present, will be disabled.
  * </p>
- * @param {cc.VERTEX_ATTRIB_FLAG_POSITION | cc.VERTEX_ATTRIB_FLAG_COLOR | cc.VERTEX_ATTRIB_FLAG_TEXCOORDS} flags
+ * @function
+ * @param {cc.VERTEX_ATTRIB_FLAG_POSITION | cc.VERTEX_ATTRIB_FLAG_COLOR | cc.VERTEX_ATTRIB_FLAG_TEX_OORDS} flags
  */
 cc.glEnableVertexAttribs = function (flags) {
     /* Position */
-    var ctx = cc.renderContext;
+    var ctx = cc._renderContext;
     var enablePosition = ( flags & cc.VERTEX_ATTRIB_FLAG_POSITION );
     if (enablePosition !== cc._vertexAttribPosition) {
         if (enablePosition)
@@ -229,7 +212,7 @@ cc.glEnableVertexAttribs = function (flags) {
     }
 
     /* Tex Coords */
-    var enableTexCoords = (flags & cc.VERTEX_ATTRIB_FLAG_TEXCOORDS);
+    var enableTexCoords = (flags & cc.VERTEX_ATTRIB_FLAG_TEX_COORDS);
     if (enableTexCoords !== cc._vertexAttribTexCoords) {
         if (enableTexCoords)
             ctx.enableVertexAttribArray(cc.VERTEX_ATTRIB_TEX_COORDS);
@@ -242,6 +225,7 @@ cc.glEnableVertexAttribs = function (flags) {
 /**
  * If the texture is not already bound, it binds it.<br/>
  * If CC_ENABLE_GL_STATE_CACHE is disabled, it will call glBindTexture() directly.
+ * @function
  * @param {cc.Texture2D} textureId
  */
 cc.glBindTexture2D = function (textureId) {
@@ -251,15 +235,16 @@ cc.glBindTexture2D = function (textureId) {
 /**
  * If the texture is not already bound to a given unit, it binds it.<br/>
  * If CC_ENABLE_GL_STATE_CACHE is disabled, it will call glBindTexture() directly.
+ * @function
  * @param {Number} textureUnit
  * @param {cc.Texture2D} textureId
  */
 cc.glBindTexture2DN = function (textureUnit, textureId) {
-    if (cc._currentBoundTexture[textureUnit] == textureId)
+    if (cc._currentBoundTexture[textureUnit] === textureId)
         return;
     cc._currentBoundTexture[textureUnit] = textureId;
 
-    var ctx = cc.renderContext;
+    var ctx = cc._renderContext;
     ctx.activeTexture(ctx.TEXTURE0 + textureUnit);
     if(textureId)
         ctx.bindTexture(ctx.TEXTURE_2D, textureId._webTextureObj);
@@ -268,7 +253,7 @@ cc.glBindTexture2DN = function (textureUnit, textureId) {
 };
 if (!cc.ENABLE_GL_STATE_CACHE){
     cc.glBindTexture2DN = function (textureUnit, textureId) {
-        var ctx = cc.renderContext;
+        var ctx = cc._renderContext;
         ctx.activeTexture(ctx.TEXTURE0 + textureUnit);
         if(textureId)
             ctx.bindTexture(ctx.TEXTURE_2D, textureId._webTextureObj);
@@ -280,6 +265,7 @@ if (!cc.ENABLE_GL_STATE_CACHE){
 /**
  * It will delete a given texture. If the texture was bound, it will invalidate the cached. <br/>
  * If CC_ENABLE_GL_STATE_CACHE is disabled, it will call glDeleteTextures() directly.
+ * @function
  * @param {WebGLTexture} textureId
  */
 cc.glDeleteTexture = function (textureId) {
@@ -289,28 +275,30 @@ cc.glDeleteTexture = function (textureId) {
 /**
  * It will delete a given texture. If the texture was bound, it will invalidate the cached for the given texture unit.<br/>
  * If CC_ENABLE_GL_STATE_CACHE is disabled, it will call glDeleteTextures() directly.
+ * @function
  * @param {Number} textureUnit
  * @param {WebGLTexture} textureId
  */
 cc.glDeleteTextureN = function (textureUnit, textureId) {
     if (cc.ENABLE_GL_STATE_CACHE) {
-        if (textureId == cc._currentBoundTexture[ textureUnit ])
+        if (textureId === cc._currentBoundTexture[ textureUnit ])
             cc._currentBoundTexture[ textureUnit ] = -1;
     }
-    cc.renderContext.deleteTexture(textureId);
+    cc._renderContext.deleteTexture(textureId);
 };
 
 /**
  * If the vertex array is not already bound, it binds it.<br/>
  * If CC_ENABLE_GL_STATE_CACHE is disabled, it will call glBindVertexArray() directly.
- * @param vaoId
+ * @function
+ * @param {Number} vaoId
  */
 cc.glBindVAO = function (vaoId) {
     if (!cc.TEXTURE_ATLAS_USE_VAO)
         return;
 
     if (cc.ENABLE_GL_STATE_CACHE) {
-        if (cc._uVAO != vaoId) {
+        if (cc._uVAO !== vaoId) {
             cc._uVAO = vaoId;
             //TODO need fixed
             //glBindVertexArray(vaoId);
@@ -323,6 +311,7 @@ cc.glBindVAO = function (vaoId) {
 /**
  * It will enable / disable the server side GL states.<br/>
  * If CC_ENABLE_GL_STATE_CACHE is disabled, it will call glEnable() directly.
+ * @function
  * @param {Number} flags
  */
 cc.glEnable = function (flags) {
@@ -334,18 +323,18 @@ cc.glEnable = function (flags) {
         /*
          if ((enabled = (flags & cc.GL_BLEND)) != (cc._GLServerState & cc.GL_BLEND)) {
          if (enabled) {
-         cc.renderContext.enable(cc.renderContext.BLEND);
+         cc._renderContext.enable(cc._renderContext.BLEND);
          cc._GLServerState |= cc.GL_BLEND;
          } else {
-         cc.renderContext.disable(cc.renderContext.BLEND);
+         cc._renderContext.disable(cc._renderContext.BLEND);
          cc._GLServerState &= ~cc.GL_BLEND;
          }
          }*/
     } else {
         /*if ((flags & cc.GL_BLEND))
-         cc.renderContext.enable(cc.renderContext.BLEND);
+         cc._renderContext.enable(cc._renderContext.BLEND);
          else
-         cc.renderContext.disable(cc.renderContext.BLEND);*/
+         cc._renderContext.disable(cc._renderContext.BLEND);*/
     }
 };
 

@@ -1,7 +1,7 @@
 /****************************************************************************
- Copyright (c) 2010-2012 cocos2d-x.org
  Copyright (c) 2008-2010 Ricardo Quesada
- Copyright (c) 2011      Zynga Inc.
+ Copyright (c) 2011-2012 cocos2d-x.org
+ Copyright (c) 2013-2014 Chukong Technologies Inc.
 
  http://www.cocos2d-x.org
 
@@ -47,6 +47,12 @@ cc.FLT_MAX = parseFloat('3.402823466e+38F');
  * @constant
  * @type Number
  */
+cc.FLT_MIN = parseFloat("1.175494351e-38F");
+
+/**
+ * @constant
+ * @type Number
+ */
 cc.RAD = cc.PI / 180;
 
 /**
@@ -68,19 +74,19 @@ cc.UINT_MAX = 0xffffffff;
  *  modified from c++ macro, you need to pass in the x and y variables names in string, <br/>
  *  and then a reference to the whole object as third variable
  * </p>
- * @param x
- * @param y
- * @param ref
+ * @param {String} x
+ * @param {String} y
+ * @param {Object} ref
  * @function
- * @deprecated
+ * @deprecated since v3.0
  */
-cc.SWAP = function (x, y, ref) {
-    if ((typeof ref) == 'object' && (typeof ref.x) != 'undefined' && (typeof ref.y) != 'undefined') {
+cc.swap = function (x, y, ref) {
+    if (cc.isObject(ref) && !cc.isUndefined(ref.x) && !cc.isUndefined(ref.y)) {
         var tmp = ref[x];
         ref[x] = ref[y];
         ref[y] = tmp;
     } else
-        cc.log("cc.SWAP is being modified from original macro, please check usage");
+        cc.log(cc._LogInfos.swap);
 };
 
 /**
@@ -100,11 +106,20 @@ cc.lerp = function (a, b, r) {
 };
 
 /**
+ * get a random number from 0 to 0xffffff
+ * @function
+ * @returns {number}
+ */
+cc.rand = function () {
+	return Math.random() * 0xffffff;
+};
+
+/**
  * returns a random float between -1 and 1
  * @return {Number}
  * @function
  */
-cc.RANDOM_MINUS1_1 = function () {
+cc.randomMinus1To1 = function () {
     return (Math.random() - 0.5) * 2;
 };
 
@@ -113,9 +128,7 @@ cc.RANDOM_MINUS1_1 = function () {
  * @return {Number}
  * @function
  */
-cc.RANDOM_0_1 = function () {
-    return Math.random();
-};
+cc.random0To1 = Math.random;
 
 /**
  * converts degrees to radians
@@ -123,7 +136,7 @@ cc.RANDOM_0_1 = function () {
  * @return {Number}
  * @function
  */
-cc.DEGREES_TO_RADIANS = function (angle) {
+cc.degreesToRadians = function (angle) {
     return angle * cc.RAD;
 };
 
@@ -133,7 +146,17 @@ cc.DEGREES_TO_RADIANS = function (angle) {
  * @return {Number}
  * @function
  */
-cc.RADIANS_TO_DEGREES = function (angle) {
+cc.radiansToDegrees = function (angle) {
+    return angle * cc.DEG;
+};
+/**
+ * converts radians to degrees
+ * @param {Number} angle
+ * @return {Number}
+ * @function
+ */
+cc.radiansToDegress = function (angle) {
+    cc.log(cc._LogInfos.radiansToDegress);
     return angle * cc.DEG;
 };
 
@@ -162,10 +185,10 @@ cc.BLEND_DST = 0x0303;
  * @param {cc.Node} node setup node
  * @function
  */
-cc.NODE_DRAW_SETUP = function (node) {
+cc.nodeDrawSetup = function (node) {
     //cc.glEnable(node._glServerState);
     if (node._shaderProgram) {
-        //cc.renderContext.useProgram(node._shaderProgram._programObj);
+        //cc._renderContext.useProgram(node._shaderProgram._programObj);
         node._shaderProgram.use();
         node._shaderProgram.setUniformForModelViewAndProjectionMatrixWithMat4();
     }
@@ -181,7 +204,7 @@ cc.NODE_DRAW_SETUP = function (node) {
  * </p>
  * @function
  */
-cc.ENABLE_DEFAULT_GL_STATES = function () {
+cc.enableDefaultGLStates = function () {
     //TODO OPENGL STUFF
     /*
      glEnableClientState(GL_VERTEX_ARRAY);
@@ -199,7 +222,7 @@ cc.ENABLE_DEFAULT_GL_STATES = function () {
  * </p>
  * @function
  */
-cc.DISABLE_DEFAULT_GL_STATES = function () {
+cc.disableDefaultGLStates = function () {
     //TODO OPENGL
     /*
      glDisable(GL_TEXTURE_2D);
@@ -217,7 +240,7 @@ cc.DISABLE_DEFAULT_GL_STATES = function () {
  * @param {Number} addNumber
  * @function
  */
-cc.INCREMENT_GL_DRAWS = function (addNumber) {
+cc.incrementGLDraws = function (addNumber) {
     cc.g_NumberOfDraws += addNumber;
 };
 
@@ -232,10 +255,11 @@ cc.FLT_EPSILON = 0.0000001192092896;
  *     On Mac it returns 1;<br/>
  *     On iPhone it returns 2 if RetinaDisplay is On. Otherwise it returns 1
  * </p>
+ * @return {Number}
  * @function
  */
-cc.CONTENT_SCALE_FACTOR = cc.IS_RETINA_DISPLAY_SUPPORTED ? function () {
-    return cc.Director.getInstance().getContentScaleFactor();
+cc.contentScaleFactor = cc.IS_RETINA_DISPLAY_SUPPORTED ? function () {
+    return cc.director.getContentScaleFactor();
 } : function () {
     return 1;
 };
@@ -246,15 +270,26 @@ cc.CONTENT_SCALE_FACTOR = cc.IS_RETINA_DISPLAY_SUPPORTED ? function () {
  * @return {cc.Point}
  * @function
  */
-cc.POINT_POINTS_TO_PIXELS = function (points) {
-    var scale = cc.CONTENT_SCALE_FACTOR();
+cc.pointPointsToPixels = function (points) {
+    var scale = cc.contentScaleFactor();
     return cc.p(points.x * scale, points.y * scale);
 };
 
-cc._POINT_POINTS_TO_PIXELS_OUT = function (points, outPixels) {
-    var scale = cc.CONTENT_SCALE_FACTOR();
-    outPixels._x = points.x * scale;
-    outPixels._y = points.y * scale;
+/**
+ * Converts a Point in pixels to points
+ * @param {cc.Rect} pixels
+ * @return {cc.Point}
+ * @function
+ */
+cc.pointPixelsToPoints = function (pixels) {
+	var scale = cc.contentScaleFactor();
+	return cc.p(pixels.x / scale, pixels.y / scale);
+};
+
+cc._pointPixelsToPointsOut = function(pixels, outPoint){
+	var scale = cc.contentScaleFactor();
+	outPoint.x = pixels.x / scale;
+	outPoint.y = pixels.y / scale;
 };
 
 /**
@@ -263,8 +298,8 @@ cc._POINT_POINTS_TO_PIXELS_OUT = function (points, outPixels) {
  * @return {cc.Size}
  * @function
  */
-cc.SIZE_POINTS_TO_PIXELS = function (sizeInPoints) {
-    var scale = cc.CONTENT_SCALE_FACTOR();
+cc.sizePointsToPixels = function (sizeInPoints) {
+    var scale = cc.contentScaleFactor();
     return cc.size(sizeInPoints.width * scale, sizeInPoints.height * scale);
 };
 
@@ -274,40 +309,25 @@ cc.SIZE_POINTS_TO_PIXELS = function (sizeInPoints) {
  * @return {cc.Size}
  * @function
  */
-cc.SIZE_PIXELS_TO_POINTS = function (sizeInPixels) {
-    var scale = cc.CONTENT_SCALE_FACTOR();
+cc.sizePixelsToPoints = function (sizeInPixels) {
+    var scale = cc.contentScaleFactor();
     return cc.size(sizeInPixels.width / scale, sizeInPixels.height / scale);
 };
 
-cc._SIZE_PIXELS_TO_POINTS_OUT = function (sizeInPixels, outSize) {
-    var scale = cc.CONTENT_SCALE_FACTOR();
-    outSize._width = sizeInPixels.width / scale;
-    outSize._height = sizeInPixels.height / scale;
-};
-
-/**
- * Converts a Point in pixels to points
- * @param {Point} pixels
- * @function
- */
-cc.POINT_PIXELS_TO_POINTS = function (pixels) {
-    var scale = cc.CONTENT_SCALE_FACTOR();
-    return cc.p(pixels.x / scale, pixels.y / scale);
-};
-
-cc._POINT_PIXELS_TO_POINTS_OUT = function(pixels, outPoint){
-    var scale = cc.CONTENT_SCALE_FACTOR();
-    outPoint._x = pixels.x / scale;
-    outPoint._y = pixels.y / scale;
+cc._sizePixelsToPointsOut = function (sizeInPixels, outSize) {
+    var scale = cc.contentScaleFactor();
+    outSize.width = sizeInPixels.width / scale;
+    outSize.height = sizeInPixels.height / scale;
 };
 
 /**
  * Converts a rect in pixels to points
  * @param {cc.Rect} pixel
+ * @return {cc.Rect}
  * @function
  */
-cc.RECT_PIXELS_TO_POINTS = cc.IS_RETINA_DISPLAY_SUPPORTED ? function (pixel) {
-    var scale = cc.CONTENT_SCALE_FACTOR();
+cc.rectPixelsToPoints = cc.IS_RETINA_DISPLAY_SUPPORTED ? function (pixel) {
+    var scale = cc.contentScaleFactor();
     return cc.rect(pixel.x / scale, pixel.y / scale,
         pixel.width / scale, pixel.height / scale);
 } : function (p) {
@@ -317,59 +337,494 @@ cc.RECT_PIXELS_TO_POINTS = cc.IS_RETINA_DISPLAY_SUPPORTED ? function (pixel) {
 /**
  * Converts a rect in points to pixels
  * @param {cc.Rect} point
+ * @return {cc.Rect}
  * @function
  */
-cc.RECT_POINTS_TO_PIXELS = cc.IS_RETINA_DISPLAY_SUPPORTED ? function (point) {
-   var scale = cc.CONTENT_SCALE_FACTOR();
+cc.rectPointsToPixels = cc.IS_RETINA_DISPLAY_SUPPORTED ? function (point) {
+   var scale = cc.contentScaleFactor();
     return cc.rect(point.x * scale, point.y * scale,
         point.width * scale, point.height * scale);
 } : function (p) {
     return p;
 };
 
-if (!cc.Browser.supportWebGL) {
-    /**
-     * WebGL constants
-     * @type {object}
-     */
-    var gl = gl || {};
+//some gl constant variable
+/**
+ * @constant
+ * @type Number
+ */
+cc.ONE = 1;
 
-    /**
-     * @constant
-     * @type Number
-     */
-    gl.ONE = 1;
+/**
+ * @constant
+ * @type Number
+ */
+cc.ZERO = 0;
 
-    /**
-     * @constant
-     * @type Number
-     */
-    gl.ZERO = 0;
+/**
+ * @constant
+ * @type Number
+ */
+cc.SRC_ALPHA = 0x0302;
 
-    /**
-     * @constant
-     * @type Number
-     */
-    gl.SRC_ALPHA = 0x0302;
+/**
+ * @constant
+ * @type Number
+ */
+cc.SRC_ALPHA_SATURATE = 0x308;
 
-    /**
-     * @constant
-     * @type Number
-     */
-    gl.ONE_MINUS_SRC_ALPHA = 0x0303;
+/**
+ * @constant
+ * @type Number
+ */
+cc.SRC_COLOR = 0x300;
 
-    /**
-     * @constant
-     * @type Number
-     */
-    gl.ONE_MINUS_DST_COLOR = 0x0307;
-}
+/**
+ * @constant
+ * @type Number
+ */
+cc.DST_ALPHA = 0x304;
 
-cc.CHECK_GL_ERROR_DEBUG = function () {
-    if (cc.renderMode == cc.WEBGL) {
-        var _error = cc.renderContext.getError();
+/**
+ * @constant
+ * @type Number
+ */
+cc.DST_COLOR = 0x306;
+
+/**
+ * @constant
+ * @type Number
+ */
+cc.ONE_MINUS_SRC_ALPHA = 0x0303;
+
+/**
+ * @constant
+ * @type Number
+ */
+cc.ONE_MINUS_SRC_COLOR = 0x301;
+
+/**
+ * @constant
+ * @type Number
+ */
+cc.ONE_MINUS_DST_ALPHA = 0x305;
+
+/**
+ * @constant
+ * @type Number
+ */
+cc.ONE_MINUS_DST_COLOR = 0x0307;
+
+/**
+ * @constant
+ * @type Number
+ */
+cc.ONE_MINUS_CONSTANT_ALPHA	= 0x8004;
+
+/**
+ * @constant
+ * @type Number
+ */
+cc.ONE_MINUS_CONSTANT_COLOR	= 0x8002;
+
+/**
+ * the constant variable equals gl.LINEAR for texture
+ * @constant
+ * @type Number
+ */
+cc.LINEAR	= 0x2601;
+
+/**
+ * the constant variable equals gl.REPEAT for texture
+ * @constant
+ * @type Number
+ */
+cc.REPEAT	= 0x2901;
+
+/**
+ * the constant variable equals gl.CLAMP_TO_EDGE for texture
+ * @constant
+ * @type Number
+ */
+cc.CLAMP_TO_EDGE	= 0x812f;
+
+/**
+ * the constant variable equals gl.MIRRORED_REPEAT for texture
+ * @constant
+ * @type Number
+ */
+cc.MIRRORED_REPEAT   = 0x8370;
+
+/**
+ * Check webgl error.Error will be shown in console if exists.
+ * @function
+ */
+cc.checkGLErrorDebug = function () {
+    if (cc.renderMode === cc._RENDER_TYPE_WEBGL) {
+        var _error = cc._renderContext.getError();
         if (_error) {
-            cc.log("WebGL error " + _error);
+            cc.log(cc._LogInfos.checkGLErrorDebug, _error);
         }
     }
+};
+
+//Possible device orientations
+/**
+ * Device oriented vertically, home button on the bottom (UIDeviceOrientationPortrait)
+ * @constant
+ * @type Number
+ */
+cc.DEVICE_ORIENTATION_PORTRAIT = 0;
+
+/**
+ * Device oriented horizontally, home button on the right (UIDeviceOrientationLandscapeLeft)
+ * @constant
+ * @type Number
+ */
+cc.DEVICE_ORIENTATION_LANDSCAPE_LEFT = 1;
+
+/**
+ * Device oriented vertically, home button on the top (UIDeviceOrientationPortraitUpsideDown)
+ * @constant
+ * @type Number
+ */
+cc.DEVICE_ORIENTATION_PORTRAIT_UPSIDE_DOWN = 2;
+
+/**
+ * Device oriented horizontally, home button on the left (UIDeviceOrientationLandscapeRight)
+ * @constant
+ * @type Number
+ */
+cc.DEVICE_ORIENTATION_LANDSCAPE_RIGHT = 3;
+
+/**
+ * In browsers, we only support 2 orientations by change window size.
+ * @constant
+ * @type Number
+ */
+cc.DEVICE_MAX_ORIENTATIONS = 2;
+
+
+// ------------------- vertex attrib flags -----------------------------
+/**
+ * @constant
+ * @type {Number}
+ */
+cc.VERTEX_ATTRIB_FLAG_NONE = 0;
+/**
+ * @constant
+ * @type {Number}
+ */
+cc.VERTEX_ATTRIB_FLAG_POSITION = 1 << 0;
+/**
+ * @constant
+ * @type {Number}
+ */
+cc.VERTEX_ATTRIB_FLAG_COLOR = 1 << 1;
+/**
+ * @constant
+ * @type {Number}
+ */
+cc.VERTEX_ATTRIB_FLAG_TEX_COORDS = 1 << 2;
+/**
+ * @constant
+ * @type {Number}
+ */
+cc.VERTEX_ATTRIB_FLAG_POS_COLOR_TEX = ( cc.VERTEX_ATTRIB_FLAG_POSITION | cc.VERTEX_ATTRIB_FLAG_COLOR | cc.VERTEX_ATTRIB_FLAG_TEX_COORDS );
+
+/**
+ * GL server side states
+ * @constant
+ * @type {Number}
+ */
+cc.GL_ALL = 0;
+
+//-------------Vertex Attributes-----------
+/**
+ * @constant
+ * @type {Number}
+ */
+cc.VERTEX_ATTRIB_POSITION = 0;
+/**
+ * @constant
+ * @type {Number}
+ */
+cc.VERTEX_ATTRIB_COLOR = 1;
+/**
+ * @constant
+ * @type {Number}
+ */
+cc.VERTEX_ATTRIB_TEX_COORDS = 2;
+/**
+ * @constant
+ * @type {Number}
+ */
+cc.VERTEX_ATTRIB_MAX = 3;
+
+//------------Uniforms------------------
+/**
+ * @constant
+ * @type {Number}
+ */
+cc.UNIFORM_PMATRIX = 0;
+/**
+ * @constant
+ * @type {Number}
+ */
+cc.UNIFORM_MVMATRIX = 1;
+/**
+ * @constant
+ * @type {Number}
+ */
+cc.UNIFORM_MVPMATRIX = 2;
+/**
+ * @constant
+ * @type {Number}
+ */
+cc.UNIFORM_TIME = 3;
+/**
+ * @constant
+ * @type {Number}
+ */
+cc.UNIFORM_SINTIME = 4;
+/**
+ * @constant
+ * @type {Number}
+ */
+cc.UNIFORM_COSTIME = 5;
+/**
+ * @constant
+ * @type {Number}
+ */
+cc.UNIFORM_RANDOM01 = 6;
+/**
+ * @constant
+ * @type {Number}
+ */
+cc.UNIFORM_SAMPLER = 7;
+/**
+ * @constant
+ * @type {Number}
+ */
+cc.UNIFORM_MAX = 8;
+
+//------------Shader Name---------------
+/**
+ * @constant
+ * @type {String}
+ */
+cc.SHADER_POSITION_TEXTURECOLOR = "ShaderPositionTextureColor";
+/**
+ * @constant
+ * @type {String}
+ */
+cc.SHADER_POSITION_TEXTURECOLORALPHATEST = "ShaderPositionTextureColorAlphaTest";
+/**
+ * @constant
+ * @type {String}
+ */
+cc.SHADER_POSITION_COLOR = "ShaderPositionColor";
+/**
+ * @constant
+ * @type {String}
+ */
+cc.SHADER_POSITION_TEXTURE = "ShaderPositionTexture";
+/**
+ * @constant
+ * @type {String}
+ */
+cc.SHADER_POSITION_TEXTURE_UCOLOR = "ShaderPositionTexture_uColor";
+/**
+ * @constant
+ * @type {String}
+ */
+cc.SHADER_POSITION_TEXTUREA8COLOR = "ShaderPositionTextureA8Color";
+/**
+ * @constant
+ * @type {String}
+ */
+cc.SHADER_POSITION_UCOLOR = "ShaderPosition_uColor";
+/**
+ * @constant
+ * @type {String}
+ */
+cc.SHADER_POSITION_LENGTHTEXTURECOLOR = "ShaderPositionLengthTextureColor";
+
+//------------uniform names----------------
+/**
+ * @constant
+ * @type {String}
+ */
+cc.UNIFORM_PMATRIX_S = "CC_PMatrix";
+/**
+ * @constant
+ * @type {String}
+ */
+cc.UNIFORM_MVMATRIX_S = "CC_MVMatrix";
+/**
+ * @constant
+ * @type {String}
+ */
+cc.UNIFORM_MVPMATRIX_S = "CC_MVPMatrix";
+/**
+ * @constant
+ * @type {String}
+ */
+cc.UNIFORM_TIME_S = "CC_Time";
+/**
+ * @constant
+ * @type {String}
+ */
+cc.UNIFORM_SINTIME_S = "CC_SinTime";
+/**
+ * @constant
+ * @type {String}
+ */
+cc.UNIFORM_COSTIME_S = "CC_CosTime";
+/**
+ * @constant
+ * @type {String}
+ */
+cc.UNIFORM_RANDOM01_S = "CC_Random01";
+/**
+ * @constant
+ * @type {String}
+ */
+cc.UNIFORM_SAMPLER_S = "CC_Texture0";
+/**
+ * @constant
+ * @type {String}
+ */
+cc.UNIFORM_ALPHA_TEST_VALUE_S = "CC_alpha_value";
+
+//------------Attribute names--------------
+/**
+ * @constant
+ * @type {String}
+ */
+cc.ATTRIBUTE_NAME_COLOR = "a_color";
+/**
+ * @constant
+ * @type {String}
+ */
+cc.ATTRIBUTE_NAME_POSITION = "a_position";
+/**
+ * @constant
+ * @type {String}
+ */
+cc.ATTRIBUTE_NAME_TEX_COORD = "a_texCoord";
+
+
+/**
+ * default size for font size
+ * @constant
+ * @type Number
+ */
+cc.ITEM_SIZE = 32;
+
+/**
+ * default tag for current item
+ * @constant
+ * @type Number
+ */
+cc.CURRENT_ITEM = 0xc0c05001;
+/**
+ * default tag for zoom action tag
+ * @constant
+ * @type Number
+ */
+cc.ZOOM_ACTION_TAG = 0xc0c05002;
+/**
+ * default tag for normal
+ * @constant
+ * @type Number
+ */
+cc.NORMAL_TAG = 8801;
+
+/**
+ * default selected tag
+ * @constant
+ * @type Number
+ */
+cc.SELECTED_TAG = 8802;
+
+/**
+ * default disabled tag
+ * @constant
+ * @type Number
+ */
+cc.DISABLE_TAG = 8803;
+
+
+// Array utils
+
+/**
+ * Verify Array's Type
+ * @param {Array} arr
+ * @param {function} type
+ * @return {Boolean}
+ * @function
+ */
+cc.arrayVerifyType = function (arr, type) {
+    if (arr && arr.length > 0) {
+        for (var i = 0; i < arr.length; i++) {
+            if (!(arr[i] instanceof  type)) {
+                cc.log("element type is wrong!");
+                return false;
+            }
+        }
+    }
+    return true;
+};
+
+/**
+ * Searches for the first occurance of object and removes it. If object is not found the function has no effect.
+ * @function
+ * @param {Array} arr Source Array
+ * @param {*} delObj  remove object
+ */
+cc.arrayRemoveObject = function (arr, delObj) {
+    for (var i = 0, l = arr.length; i < l; i++) {
+        if (arr[i] === delObj) {
+            arr.splice(i, 1);
+            break;
+        }
+    }
+};
+
+/**
+ * Removes from arr all values in minusArr. For each Value in minusArr, the first matching instance in arr will be removed.
+ * @function
+ * @param {Array} arr Source Array
+ * @param {Array} minusArr minus Array
+ */
+cc.arrayRemoveArray = function (arr, minusArr) {
+    for (var i = 0, l = minusArr.length; i < l; i++) {
+        cc.arrayRemoveObject(arr, minusArr[i]);
+    }
+};
+
+/**
+ * Inserts some objects at index
+ * @function
+ * @param {Array} arr
+ * @param {Array} addObjs
+ * @param {Number} index
+ * @return {Array}
+ */
+cc.arrayAppendObjectsToIndex = function(arr, addObjs,index){
+    arr.splice.apply(arr, [index, 0].concat(addObjs));
+    return arr;
+};
+
+/**
+ * Copy an array's item to a new array (its performance is better than Array.slice)
+ * @param {Array} arr
+ * @return {Array}
+ */
+cc.copyArray = function(arr){
+    var i, len = arr.length, arr_clone = new Array(len);
+    for (i = 0; i < len; i += 1)
+        arr_clone[i] = arr[i];
+    return arr_clone;
 };

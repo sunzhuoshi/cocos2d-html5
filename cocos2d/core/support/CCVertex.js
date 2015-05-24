@@ -1,5 +1,7 @@
 /****************************************************************************
- Copyright (c) 2010-2012 cocos2d-x.org
+ Copyright (c) 2008-2010 Ricardo Quesada
+ Copyright (c) 2011-2012 cocos2d-x.org
+ Copyright (c) 2013-2014 Chukong Technologies Inc.
  Copyright (c) 2009      Valentin Milea
 
  http://www.cocos2d-x.org
@@ -58,9 +60,9 @@ cc.vertexLineToPolygon = function (points, stroke, vertices, offset, nuPoints) {
             // Calculate angle between vectors
             var angle = Math.acos(cc.pDot(p2p1, p0p1));
 
-            if (angle < cc.DEGREES_TO_RADIANS(70))
+            if (angle < cc.degreesToRadians(70))
                 perpVector = cc.pPerp(cc.pNormalize(cc.pMidpoint(p2p1, p0p1)));
-            else if (angle < cc.DEGREES_TO_RADIANS(170))
+            else if (angle < cc.degreesToRadians(170))
                 perpVector = cc.pNormalize(cc.pMidpoint(p2p1, p0p1));
             else
                 perpVector = cc.pPerp(cc.pNormalize(cc.pSub(p2, p0)));
@@ -74,15 +76,15 @@ cc.vertexLineToPolygon = function (points, stroke, vertices, offset, nuPoints) {
     }
 
     // Validate vertexes
-    offset = (offset == 0) ? 0 : offset - 1;
+    offset = (offset === 0) ? 0 : offset - 1;
     for (i = offset; i < nuPointsMinus; i++) {
         idx = i * 2;
         var idx1 = idx + 2;
 
-        var v1 = cc.Vertex2(vertices[idx * 2], vertices[idx * 2 + 1]);
-        var v2 = cc.Vertex2(vertices[(idx + 1) * 2], vertices[(idx + 1) * 2 + 1]);
-        var v3 = cc.Vertex2(vertices[idx1 * 2], vertices[idx1 * 2]);
-        var v4 = cc.Vertex2(vertices[(idx1 + 1) * 2], vertices[(idx1 + 1) * 2 + 1]);
+        var v1 = cc.vertex2(vertices[idx * 2], vertices[idx * 2 + 1]);
+        var v2 = cc.vertex2(vertices[(idx + 1) * 2], vertices[(idx + 1) * 2 + 1]);
+        var v3 = cc.vertex2(vertices[idx1 * 2], vertices[idx1 * 2]);
+        var v4 = cc.vertex2(vertices[(idx1 + 1) * 2], vertices[(idx1 + 1) * 2 + 1]);
 
         //BOOL fixVertex = !ccpLineIntersect(ccp(p1.x, p1.y), ccp(p4.x, p4.y), ccp(p2.x, p2.y), ccp(p3.x, p3.y), &s, &t);
         var fixVertexResult = !cc.vertexLineIntersect(v1.x, v1.y, v4.x, v4.y, v2.x, v2.y, v3.x, v3.y);
@@ -100,7 +102,7 @@ cc.vertexLineToPolygon = function (points, stroke, vertices, offset, nuPoints) {
 };
 
 /**
- * returns wheter or not the line intersects
+ * returns whether or not the line intersects
  * @param {Number} Ax
  * @param {Number} Ay
  * @param {Number} Bx
@@ -115,7 +117,7 @@ cc.vertexLineIntersect = function (Ax, Ay, Bx, By, Cx, Cy, Dx, Dy) {
     var distAB, theCos, theSin, newX;
 
     // FAIL: Line undefined
-    if ((Ax == Bx && Ay == By) || (Cx == Dx && Cy == Dy))
+    if ((Ax === Bx && Ay === By) || (Cx === Dx && Cy === Dy))
         return {isSuccess:false, value:0};
 
     //  Translate system to make A the origin
@@ -140,11 +142,29 @@ cc.vertexLineIntersect = function (Ax, Ay, Bx, By, Cx, Cy, Dx, Dy) {
     Dx = newX;
 
     // FAIL: Lines are parallel.
-    if (Cy == Dy) return {isSuccess:false, value:0};
+    if (Cy === Dy) return {isSuccess:false, value:0};
 
     // Discover the relative position of the intersection in the line AB
     var t = (Dx + (Cx - Dx) * Dy / (Dy - Cy)) / distAB;
 
     // Success.
     return {isSuccess:true, value:t};
+};
+
+/**
+ * returns wheter or not polygon defined by vertex list is clockwise
+ * @param {Array} verts
+ * @return {Boolean}
+ */
+cc.vertexListIsClockwise = function(verts) {
+    for (var i = 0, len = verts.length; i < len; i++) {
+        var a = verts[i];
+        var b = verts[(i + 1) % len];
+        var c = verts[(i + 2) % len];
+
+        if (cc.pCross(cc.pSub(b, a), cc.pSub(c, b)) > 0)
+            return false;
+    }
+
+    return true;
 };
