@@ -972,7 +972,15 @@ cc.BuilderReader.loadAsScene = function (ccbFilePath, owner, parentSize, ccbRoot
 
 cc.BuilderReader._controllerClassCache = {};
 cc.BuilderReader.registerController = function(controllerName, controller){
-    cc.BuilderReader._controllerClassCache[controllerName] = cc.Class.extend(controller);
+    var controllerClass;
+
+    if (cc.isFunction(controller)) {
+        controllerClass = controller;
+    }
+    else {
+        controllerClass = cc.Class.extend(controller);
+    }
+    cc.BuilderReader._controllerClassCache[controllerName] = controllerClass;
 };
 cc.BuilderReader.load = function (ccbFilePath, owner, parentSize, ccbRootPath) {
     ccbRootPath = ccbRootPath || cc.BuilderReader.getResourcePath();
