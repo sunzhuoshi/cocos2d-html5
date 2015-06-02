@@ -214,7 +214,8 @@ cc.ActionManager = cc.Class.extend(/** @lends cc.ActionManager# */{
                         return action;
                 }
             }
-            cc.log(cc._LogInfos.ActionManager_getActionByTag_2, tag);
+            // Disable it for it will show when no issue
+            //cc.log(cc._LogInfos.ActionManager_getActionByTag_2, tag);
         }
         return null;
     },
